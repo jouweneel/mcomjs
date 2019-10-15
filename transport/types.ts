@@ -8,14 +8,14 @@ export * from './xudp/types'
 
 export interface EventTransport<T> {
   emit: (ctx: T, data?: Buffer) => Promise<number>
-  on: (callback: (ctx: T, data?: Buffer) => void) => void
+  on: (callback: (ctx: T, data: Buffer) => void) => void
   stop: () => Promise<any>
 }
 
 export interface ReqResTransport<T> {
-  request?: (ctx: T, data?: Buffer) => Promise<Buffer>
-  respond?: (callback: (ctx: T, data?: Buffer) => void) => void
-  stop?: () => Promise<any>
+  request?: (ctx: T, data: Buffer) => Promise<Buffer>
+  respond?: (callback: (ctx: T, data: Buffer) => void) => void
+  stop: () => Promise<any>
 }
 
 export type XTransport<T> = EventTransport<T> & ReqResTransport<T>

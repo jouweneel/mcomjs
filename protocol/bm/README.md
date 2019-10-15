@@ -8,7 +8,7 @@ This way, you can encode any number of typed key/value pairs into a byte array t
 ## Types and API
 ---
 Supported data types:
-```
+```ts
 type BMtype =
   'bool' | 'char' |               // Basic
 
@@ -22,7 +22,7 @@ type BMtype =
 ```
 
 ByteMap input/output format:
-```
+```ts
 interface BM {
   key: string
   data: any
@@ -31,7 +31,7 @@ interface BM {
 ```
 
 Exported API functions:
-```
+```ts
 bm2buf(bm: BM) => Buffer
 bms2buf(bms: BM[]) => Buffer
 
