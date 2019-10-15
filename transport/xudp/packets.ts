@@ -1,8 +1,6 @@
 import { pluck } from 'ramda'
 
-import { taglogger } from '../../logger'
-
-export interface HmMessage {
+export interface XudpMessage {
   data: Buffer
   id?: number
   flags?: number
@@ -21,14 +19,12 @@ const BUF_SIZE = 1500;
 const HEADER_SIZE = 4;
 const DATA_SIZE = BUF_SIZE - HEADER_SIZE;
 
-const logger = taglogger('[hm connector - packets]');
-
 let sysId = 0;
 const cache: Packet[][] = [];
 
 export const build = ({
   flags, data, id
-}: HmMessage) => {
+}: XudpMessage) => {
   const packetId = (id === 255) ? sysId : id;
   if (id !== 255 && sysId === 254) {
     sysId = 0;
@@ -55,7 +51,7 @@ export const build = ({
   return bufs;
 }
 
-export const collect = (data: Buffer): HmMessage => {
+export const collect = (data: Buffer): XudpMessage => {
   const flags = data.readUInt8(0);
   const id = data.readUInt8(1);
   const index = data.readUInt8(2);
@@ -69,12 +65,11 @@ export const collect = (data: Buffer): HmMessage => {
     cache[id][index] = packet;
   }
 
-  if (cache[id] && (index === total - 1)) {
+  if ((index === total - 1) && cache[id]) {
     for (let i = 0; i < total; i++) {
       if (!cache[id][i] || !cache[id][i].data) {
-        logger.error(new Error(`Incomplete packet ${id}:${index}/${total}`));
         delete cache[id];
-        return null;
+        throw new Error(`Incomplete packet ${id}:${index}/${total}`);
       }
     }
     const bufs = pluck('data', cache[id]);

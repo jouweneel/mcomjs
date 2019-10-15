@@ -1,4 +1,4 @@
-export * from './hm/types'
+export * from './xudp/types'
 
 /**
  * support:
@@ -18,6 +18,8 @@ export interface ReqResTransport<T> {
   stop?: () => Promise<any>
 }
 
-export type DualTransport<T> = EventTransport<T> & ReqResTransport<T>
+export type XTransport<T> = EventTransport<T> & ReqResTransport<T>
 
-export type TransportFn<T> = (cfg: any) => Promise<T>
+export type TransportFn<C,T> = (cfg: C) => Promise<T>
+
+export type Sub<T> = (ctx: T, data?: Buffer) => void
