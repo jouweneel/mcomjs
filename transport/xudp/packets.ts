@@ -69,7 +69,7 @@ export const collect = (data: Buffer): XudpMessage => {
     for (let i = 0; i < total; i++) {
       if (!cache[id][i] || !cache[id][i].data) {
         delete cache[id];
-        throw new Error(`Incomplete packet ${id}:${index}/${total}`);
+        throw new Error(`Incomplete packet[${id}] ${i}/${total}`);
       }
     }
     const bufs = pluck('data', cache[id]);

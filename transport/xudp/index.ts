@@ -42,6 +42,7 @@ export const Xudp: TransportFn<XudpConfig, Transport> = ({
         for (const packet of packets) {
           size += await transmit(ip, t_port, packet);
         }
+        logger.debug(`Sent ${packets.length} packets (${data.length}->${size} bytes)`);
         return size;
       } catch(e) {
         logger.error(e);

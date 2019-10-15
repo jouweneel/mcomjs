@@ -9,12 +9,11 @@ import { BM } from '../../protocol/types'
 const ip = getIp();
 const cfg = { port: 2222 };
 
-// const input: BM = {
-//   key: 'picutre',
-//   data: readFileSync(`${__dirname}/in.jpg`),
-//   type: 'u8a'
-// }
-console.log(`${__dirname}/out0.jpg`);
+const input: BM = {
+  key: 'picture',
+  data: readFileSync(`${__dirname}/in.jpg`),
+  type: 'u8a'
+}
 
 const test = async () => {
   const xudp = await Xudp(cfg);
@@ -28,6 +27,6 @@ const test = async () => {
     }
   });
 
-  // await xudp.emit({ ip }, bm2buf(input));
+  await xudp.emit({ ip }, bm2buf(input));
 }
 test();
