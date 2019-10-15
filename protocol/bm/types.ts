@@ -1,11 +1,14 @@
 export type BMtype =
   'key' |                                               // System reserved
-  'bool' | 'char' |                                     // Basic
-  'u8' | 'i8' | 'u16' | 'i16' | 'u32' | 'i32' |         // Int
-  'u8a' | 'i8a' | 'u16a' | 'i16a' | 'u32a' | 'i32a' |   // Int array
-  'hsv' | 'rgb' | 'rgbw' |                              // Color
-  'date' | 'time' | 'datetime' |                        // Date/time
-  'string' | 'json'                                     // String
+  'bool' | 'char' |               // Basic
+
+  'u8' | 'i8' | 'u16' |           // Unsigned integer
+  'i16' | 'u32' | 'i32' |         // Integer
+  'u8a' | 'i8a' | 'u16a' |        // ! Unsigned integer array
+  'i16a' | 'u32a' | 'i32a' |      // ! Signed integer array
+  'hsv' | 'rgb' | 'rgbw' |        // Color
+  'date' | 'time' | 'datetime' |  // Date/time
+  'string' | 'json'               // String formats
 
 export interface BM {
   key: string

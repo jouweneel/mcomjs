@@ -1,11 +1,9 @@
 "use strict";
 exports.__esModule = true;
 var ramda_1 = require("ramda");
-var logger_1 = require("../../logger");
 var BUF_SIZE = 1500;
 var HEADER_SIZE = 4;
 var DATA_SIZE = BUF_SIZE - HEADER_SIZE;
-var logger = logger_1.taglogger('[hm connector - packets]');
 var sysId = 0;
 var cache = [];
 exports.build = function (_a) {
@@ -45,12 +43,11 @@ exports.collect = function (data) {
     else if (cache[id]) {
         cache[id][index] = packet;
     }
-    if (cache[id] && (index === total - 1)) {
+    if ((index === total - 1) && cache[id]) {
         for (var i = 0; i < total; i++) {
             if (!cache[id][i] || !cache[id][i].data) {
-                logger.error(new Error("Incomplete packet " + id + ":" + index + "/" + total));
                 delete cache[id];
-                return null;
+                throw new Error("Incomplete packet[" + id + "] " + i + "/" + total);
             }
         }
         var bufs = ramda_1.pluck('data', cache[id]);
