@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "rootDir": "./",
+    "outDir": "dist",
+
+    "lib": ["esnext"],
+    "module": "commonjs",
+
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "sourceMap": false
+  },
+  "include": [
+    "**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "test"
+  ]
+}
