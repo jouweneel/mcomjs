@@ -2,9 +2,9 @@ import { bm2buf, buf2bm, bms2buf, buf2bms } from '../../protocol'
 import { BM } from '../../protocol/types'
 
 const test: BM[] = [
-  { key: 'bm_bool', type: 'bool', data: true },
-  { key: 'bm_char', type: 'char', data: 'a' },
-  { key: 'bm_u8', type: 'u8', data: 1 },
+  { key: 'bm_bool', type: 'bool', data: true, cls: 'cmd' },
+  { key: 'bm_char', type: 'char', data: 'a', cls: 'data' },
+  { key: 'bm_u8', type: 'u8', data: 1, cls: 'state' },
   { key: 'bm_i8', type: 'i8', data: -1 },
   { key: 'bm_u16', type: 'u16', data: 256 },
   { key: 'bm_i16', type: 'i16', data: -256 },

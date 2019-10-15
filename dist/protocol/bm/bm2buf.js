@@ -1,11 +1,12 @@
 "use strict";
 exports.__esModule = true;
-var types_1 = require("./types");
+var bytecodes_1 = require("./bytecodes");
 var mul = function (type) { return ((type === 'u32' || type === 'i32' || type === 'u32a' || type === 'i32a') ? 4 :
     (type === 'u16' || type === 'i16' || type === 'u16a' || type === 'i16a') ? 2 :
         1); };
-var buildHeader = function (key, type, size, data) {
-    var _a = types_1.t2bs(type), byte = _a.byte, typeSize = _a.size;
+var buildHeader = function (cls, key, type, size, data) {
+    if (cls === void 0) { cls = 'sys'; }
+    var _a = bytecodes_1.t2bs(type), byte = _a.byte, typeSize = _a.size;
     var keySize = key.length;
     var dataSize = (typeSize >= 0) ? typeSize : size;
     if (keySize > 255) {
@@ -27,7 +28,7 @@ var buildHeader = function (key, type, size, data) {
     }
     var headerSize = 2 + keySize + (typeSize >= 0 ? 1 : 5);
     var header = Buffer.alloc(headerSize, 0);
-    header.writeUInt8(types_1.t2b('key'), 0);
+    header.writeUInt8(bytecodes_1.c2b(cls), 0);
     header.writeUInt8(keySize, 1);
     header.write(key, 2);
     header.writeUInt8(byte, keySize + 2);
@@ -67,8 +68,8 @@ var writeIntA = function (buf, type, data) {
     }
 };
 exports.bm2buf = function (_a) {
-    var key = _a.key, type = _a.type, size = _a.size, data = _a.data;
-    var _b = buildHeader(key, type, size, data), dataSize = _b.dataSize, header = _b.header;
+    var cls = _a.cls, key = _a.key, type = _a.type, size = _a.size, data = _a.data;
+    var _b = buildHeader(cls, key, type, size, data), dataSize = _b.dataSize, header = _b.header;
     var buf = Buffer.alloc(dataSize);
     switch (type) {
         case 'bool':

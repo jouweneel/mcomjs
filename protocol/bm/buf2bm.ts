@@ -1,4 +1,5 @@
-import { b2ts, BM, BMtype } from './types'
+import { b2c, b2ts } from './bytecodes'
+import { BM, BMtype, BMclass } from './types'
 
 const div = (type: BMtype) => (
   (type === 'u32' || type === 'i32' || type === 'u32a' || type === 'i32a') ? 4 :
@@ -8,7 +9,8 @@ const div = (type: BMtype) => (
 
 const parseHeader = (
   buf: Buffer
-): { key: string, type: BMtype, size: number, offset: number } => {
+): { cls: BMclass, key: string, type: BMtype, size: number, offset: number } => {
+  const cls = b2c(buf.readUInt8(0));
   const keySize = buf.readUInt8(1);
   const key = buf.slice(2, 2 + keySize).toString();
   const byte = buf.readUInt8(2 + keySize);
@@ -17,6 +19,7 @@ const parseHeader = (
   let dataSize = (typeSize >= 0) ? typeSize : buf.readUInt32LE(2 + keySize + 1);
 
   return {
+    cls,
     key,
     type,
     size: dataSize,
@@ -55,7 +58,7 @@ const readIntA = (buf: Buffer, type: BMtype) => {
 
 const decodeBm = (buffer: Buffer, bufOffset: number = 0): BM => {
   const bmbuf = buffer.slice(bufOffset);
-  const { key, type, size, offset } = parseHeader(bmbuf);
+  const { cls, key, type, size, offset } = parseHeader(bmbuf);
 
   const buf = bmbuf.slice(offset, offset + size);
   
@@ -72,6 +75,7 @@ const decodeBm = (buffer: Buffer, bufOffset: number = 0): BM => {
   }
 
   return {
+    cls,
     key,
     type,
     data,
@@ -80,8 +84,8 @@ const decodeBm = (buffer: Buffer, bufOffset: number = 0): BM => {
 }
 
 export const buf2bm = (buf: Buffer): BM => {
-  const { key, type, data } = decodeBm(buf, 0);
-  return { key, type, data };
+  const { cls, key, type, data } = decodeBm(buf, 0);
+  return { cls, key, type, data };
 }
 
 export const buf2bms = (buf: Buffer): BM[] => {
@@ -89,8 +93,8 @@ export const buf2bms = (buf: Buffer): BM[] => {
   let offset = 0;
 
   while (offset < buf.length) {
-    const { key, type, data, size } = decodeBm(buf, offset);
-    result.push({ key, type, data });
+    const { cls, key, type, data, size } = decodeBm(buf, offset);
+    result.push({ cls, key, type, data });
     offset += size;
   }
 

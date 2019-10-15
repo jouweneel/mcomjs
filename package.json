@@ -5,7 +5,7 @@
   "author": "J. Ouweneel",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "build": "rm -rf ./dist && tsc -p tsconfig.json"
   },
   "dependencies": {
     "colors": "^1.4.0",

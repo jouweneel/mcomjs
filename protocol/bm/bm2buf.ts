@@ -1,4 +1,5 @@
-import { t2b, t2bs, BM, BMtype } from './types'
+import { c2b, t2bs } from './bytecodes'
+import { BM, BMtype, BMclass } from './types'
 
 const mul = (type: BMtype) => (
   (type === 'u32' || type === 'i32' || type === 'u32a' || type === 'i32a') ? 4 :
@@ -7,7 +8,7 @@ const mul = (type: BMtype) => (
 );
 
 const buildHeader = (
-  key: string, type: BMtype, size: number, data: any
+  cls: BMclass = 'sys', key: string, type: BMtype, size: number, data: any
 ): { dataSize: number, header: Buffer } => {
   const { byte, size: typeSize } = t2bs(type);
   const keySize = key.length;
@@ -30,7 +31,7 @@ const buildHeader = (
   const headerSize = 2 + keySize + (typeSize >= 0 ? 1 : 5);
   const header = Buffer.alloc(headerSize, 0);
 
-  header.writeUInt8(t2b('key'), 0);
+  header.writeUInt8(c2b(cls), 0);
   header.writeUInt8(keySize, 1);
   header.write(key, 2);
   header.writeUInt8(byte, keySize + 2);
@@ -60,8 +61,8 @@ const writeIntA = (buf: Buffer, type: BMtype, data: number[]) => {
   }
 }
 
-export const bm2buf = ({ key, type, size, data }: BM): Buffer => {
-  const { dataSize, header } = buildHeader(key, type, size, data);
+export const bm2buf = ({ cls, key, type, size, data }: BM): Buffer => {
+  const { dataSize, header } = buildHeader(cls, key, type, size, data);
 
   const buf = Buffer.alloc(dataSize);
   switch(type) {

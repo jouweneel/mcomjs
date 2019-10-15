@@ -10,6 +10,7 @@ const ip = getIp();
 const cfg = { port: 2222 };
 
 const input: BM = {
+  cls: 'data',
   key: 'picture',
   data: readFileSync(`${__dirname}/in.jpg`),
   type: 'u8a'
@@ -21,7 +22,7 @@ const test = async () => {
   xudp.on((ctx, buf) => {
     const output = buf2bm(buf);
     if (output.key === 'picture') {
-      console.log(`Received ${output.key}, type ${output.type}[${output.data.length}]`);
+      console.log(`Received ${output.cls}:${output.key}, type ${output.type}[${output.data.length}]`);
       writeFileSync(`${__dirname}/out${ctx.id}.jpg`, output.data);
       xudp.stop();
     }

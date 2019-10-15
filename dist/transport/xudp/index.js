@@ -37,6 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var dgram_1 = require("dgram");
+var bytecodes_1 = require("./bytecodes");
 var packets_1 = require("./packets");
 var util_1 = require("../util");
 var logger_1 = require("../../logger");
@@ -64,7 +65,7 @@ exports.Xudp = function (_a) {
                             packets = packets_1.build({
                                 data: data,
                                 id: (ctx.id === undefined) ? 255 : ctx.id,
-                                flags: (ctx.flags === undefined) ? 0 : ctx.flags
+                                cls: (ctx.cls === undefined) ? 0 : bytecodes_1.c2b(ctx.cls)
                             });
                             size = 0;
                             _i = 0, packets_2 = packets;
@@ -106,7 +107,7 @@ exports.Xudp = function (_a) {
                     var message = packets_1.collect(data);
                     if (message != null) {
                         ctx.id = message.id;
-                        ctx.flags = message.flags;
+                        ctx.cls = bytecodes_1.b2c(message.cls);
                         for (var _i = 0, subs_2 = subs_1; _i < subs_2.length; _i++) {
                             var sub = subs_2[_i];
                             sub(ctx, message.data);

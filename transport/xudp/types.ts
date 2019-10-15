@@ -1,3 +1,7 @@
+export type XudpClass =
+  'event' |
+  'reqres'
+
 export interface XudpConfig {
   port: number
 }
@@ -7,5 +11,5 @@ export interface XudpContext {
   port?: number
   broadcast?: boolean
   id?: number
-  flags?: number
+  cls?: XudpClass
 }

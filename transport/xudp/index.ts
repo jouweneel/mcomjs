@@ -1,5 +1,6 @@
 import { createSocket } from 'dgram'
 
+import { c2b, b2c } from './bytecodes'
 import { build, collect } from './packets'
 import { XudpConfig, XudpContext } from './types'
 import { Sub, TransportFn, XTransport } from '../types'
@@ -36,7 +37,7 @@ export const Xudp: TransportFn<XudpConfig, Transport> = ({
         const packets = build({
           data,
           id: (ctx.id === undefined) ? 255 : ctx.id,
-          flags: (ctx.flags === undefined) ? 0 : ctx.flags
+          cls: (ctx.cls === undefined) ? 0 : c2b(ctx.cls)
         });
         let size = 0;
         for (const packet of packets) {
@@ -64,7 +65,7 @@ export const Xudp: TransportFn<XudpConfig, Transport> = ({
         const message = collect(data);
         if (message != null) {
           ctx.id = message.id;
-          ctx.flags = message.flags;
+          ctx.cls = b2c(message.cls);
 
           for (const sub of subs) {
             sub(ctx, message.data);

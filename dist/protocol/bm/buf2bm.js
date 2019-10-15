@@ -1,16 +1,18 @@
 "use strict";
 exports.__esModule = true;
-var types_1 = require("./types");
+var bytecodes_1 = require("./bytecodes");
 var div = function (type) { return ((type === 'u32' || type === 'i32' || type === 'u32a' || type === 'i32a') ? 4 :
     (type === 'u16' || type === 'i16' || type === 'u16a' || type === 'i16a') ? 2 :
         1); };
 var parseHeader = function (buf) {
+    var cls = bytecodes_1.b2c(buf.readUInt8(0));
     var keySize = buf.readUInt8(1);
     var key = buf.slice(2, 2 + keySize).toString();
     var byte = buf.readUInt8(2 + keySize);
-    var _a = types_1.b2ts(byte), type = _a.type, typeSize = _a.size;
+    var _a = bytecodes_1.b2ts(byte), type = _a.type, typeSize = _a.size;
     var dataSize = (typeSize >= 0) ? typeSize : buf.readUInt32LE(2 + keySize + 1);
     return {
+        cls: cls,
         key: key,
         type: type,
         size: dataSize,
@@ -47,7 +49,7 @@ var readIntA = function (buf, type) {
 var decodeBm = function (buffer, bufOffset) {
     if (bufOffset === void 0) { bufOffset = 0; }
     var bmbuf = buffer.slice(bufOffset);
-    var _a = parseHeader(bmbuf), key = _a.key, type = _a.type, size = _a.size, offset = _a.offset;
+    var _a = parseHeader(bmbuf), cls = _a.cls, key = _a.key, type = _a.type, size = _a.size, offset = _a.offset;
     var buf = bmbuf.slice(offset, offset + size);
     var data = null;
     switch (type) {
@@ -90,6 +92,7 @@ var decodeBm = function (buffer, bufOffset) {
         default: throw new Error("buf2bm: Uknown BMtype " + type);
     }
     return {
+        cls: cls,
         key: key,
         type: type,
         data: data,
@@ -97,15 +100,15 @@ var decodeBm = function (buffer, bufOffset) {
     };
 };
 exports.buf2bm = function (buf) {
-    var _a = decodeBm(buf, 0), key = _a.key, type = _a.type, data = _a.data;
-    return { key: key, type: type, data: data };
+    var _a = decodeBm(buf, 0), cls = _a.cls, key = _a.key, type = _a.type, data = _a.data;
+    return { cls: cls, key: key, type: type, data: data };
 };
 exports.buf2bms = function (buf) {
     var result = [];
     var offset = 0;
     while (offset < buf.length) {
-        var _a = decodeBm(buf, offset), key = _a.key, type = _a.type, data = _a.data, size = _a.size;
-        result.push({ key: key, type: type, data: data });
+        var _a = decodeBm(buf, offset), cls = _a.cls, key = _a.key, type = _a.type, data = _a.data, size = _a.size;
+        result.push({ cls: cls, key: key, type: type, data: data });
         offset += size;
     }
     return result;
