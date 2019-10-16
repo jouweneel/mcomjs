@@ -1,20 +1,23 @@
-export type BMclass =
-  'sys' |
-  'cmd' |
-  'data' |
-  'state'
+export type BMclass = 'sys' | 'cmd' | 'data' | 'state'
 
-// @TODO add float/double support
 export type BMtype =
+/** Single value types */
   'bool' | 'char' |               // Basic
 
-  'u8' | 'i8' | 'u16' |           // Unsigned integer
-  'i16' | 'u32' | 'i32' |         // Integer
-  'u8a' | 'i8a' | 'u16a' |        // ! Unsigned integer array
-  'i16a' | 'u32a' | 'i32a' |      // ! Signed integer array
-  'hsv' | 'rgb' | 'rgbw' |        // Color
-  'date' | 'time' | 'datetime' |  // Date/time
-  'string' | 'json'               // String formats
+  'u8' | 'u16' | 'u32' |          // Unsigned integer
+  'i8' | 'i16' | 'i32' |          // Signed integer
+  'float' | 'double' |            // Float
+
+/** Fixed size array types */
+  'hsv' | 'rgb' | 'rgbw' |        // Predefined size arrays
+  'date' | 'time' | 'datetime' |  // Date/time u16(Y), u8(M), u8(D), u8(h), u8(m), u8(s), u16(ms)]
+
+/** Variable size array types */
+  'bool[]' | 'string' | 'json' |  // Basic
+
+  'u8[]' | 'u16[]' | 'u32[]' |    // Unsigned integer array
+  'i8[]' | 'i16[]' | 'i32[]' |    // Signed integer array
+  'float[]' | 'double[]'          // Float array
 
 export interface BM {
   cls?: BMclass

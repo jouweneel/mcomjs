@@ -1,6 +1,6 @@
 # BM - ByteMap protocol
 
-The ByteMap protocol is a typed, JSON-like byte-format. It converts between the BM type (listed below) and a Buffer, with the option of inputting and outputting BM arrays.
+The ByteMap protocol is a typed, JSON-ish byte-format (a more close resemblence is Named Binary Tag). It converts between the BM type (listed below) and a Buffer, with the option of inputting and outputting BM arrays.
 
 This way, you can encode any number of typed key/value pairs into a byte array that is accepted by all kinds of data transfer libraries.
 
@@ -10,25 +10,38 @@ This way, you can encode any number of typed key/value pairs into a byte array t
 Supported data types:
 ```ts
 type BMtype =
+export type BMtype =
+/** Single value types **/
   'bool' | 'char' |               // Basic
 
-  'u8' | 'i8' | 'u16' |           // Unsigned integer
-  'i16' | 'u32' | 'i32' |         // Integer
-  'u8a' | 'i8a' | 'u16a' |        // Unsigned integer array
-  'i16a' | 'u32a' | 'i32a' |      // Signed integer array
-  'hsv' | 'rgb' | 'rgbw' |        // Color
+  'u8' | 'u16' | 'u32' |          // Unsigned integer
+  'i8' | 'i16' | 'i32' |          // Signed integer
+  'float' | 'double' |            // Float
+
+/** Fixed size array types **/
+  'hsv' | 'rgb' | 'rgbw' |        // Predefined size arrays
   'date' | 'time' | 'datetime' |  // Date/time
-  'string' | 'json'               // String formats
+
+/** Variable size array types **/
+  'bool[]' | 'string' | 'json' |  // Basic
+
+  'u8[]' | 'u16[]' | 'u32[]' |    // Unsigned integer array
+  'i8[]' | 'i16[]' | 'i32[]' |    // Signed integer array
+  'float[]' | 'double[]'          // Float array
 ```
 
 ByteMap input/output format:
 ```ts
-interface BM {
+export interface BM {
+  cls?: BMclass
   key: string
   data: any
   type: BMtype
+  size?: number
 }
 ```
+The `cls` is an optional parameter that currently represents the 'kind' of information sent, aimed towards home automation (so that the 'goal' of the data can be marked).
+The `key` is simply the map index (comparable to an object key). The `data` contains the actual payload to be sent; expected input formats differ per type. Most are straightforward; for the date/time types, a date is a `YYYY-MM-DD` formatted string, while time is `hh:mm:ss.SSS`. Datetime combines the two with a space inbetween.
 
 Exported API functions:
 ```ts

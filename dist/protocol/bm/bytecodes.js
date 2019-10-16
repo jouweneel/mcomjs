@@ -7,29 +7,44 @@ var BMclasses = [
     { byte: 0x30, cls: 'state' }
 ];
 var BMtypes = [
+    /** Single value types */
     { byte: 0x10, type: 'bool', size: 1 },
     { byte: 0x11, type: 'char', size: 1 },
     { byte: 0x20, type: 'u8', size: 1 },
-    { byte: 0x21, type: 'i8', size: 1 },
-    { byte: 0x22, type: 'u16', size: 2 },
-    { byte: 0x23, type: 'i16', size: 2 },
-    { byte: 0x24, type: 'u32', size: 4 },
-    { byte: 0x25, type: 'i32', size: 4 },
-    { byte: 0x30, type: 'u8a', size: -1 },
-    { byte: 0x31, type: 'i8a', size: -1 },
-    { byte: 0x32, type: 'u16a', size: -1 },
-    { byte: 0x33, type: 'i16a', size: -1 },
-    { byte: 0x34, type: 'u32a', size: -1 },
-    { byte: 0x35, type: 'i32a', size: -1 },
-    { byte: 0x40, type: 'hsv', size: 3 },
-    { byte: 0x41, type: 'rgb', size: 3 },
-    { byte: 0x42, type: 'rgbw', size: 4 },
-    { byte: 0x50, type: 'string', size: -1 },
-    { byte: 0x51, type: 'date', size: 10 },
-    { byte: 0x52, type: 'time', size: 9 },
-    { byte: 0x53, type: 'datetime', size: 20 },
-    { byte: 0x61, type: 'json', size: -1 }
+    { byte: 0x21, type: 'u16', size: 2 },
+    { byte: 0x22, type: 'u32', size: 4 },
+    { byte: 0x28, type: 'i8', size: 1 },
+    { byte: 0x29, type: 'i16', size: 2 },
+    { byte: 0x2a, type: 'i32', size: 4 },
+    { byte: 0x30, type: 'float', size: 4 },
+    { byte: 0x31, type: 'double', size: 8 },
+    /** Fixed size array types */
+    { byte: 0x50, type: 'hsv', size: 3 },
+    { byte: 0x51, type: 'rgb', size: 3 },
+    { byte: 0x52, type: 'rgbw', size: 4 },
+    { byte: 0x60, type: 'date', size: 4 },
+    { byte: 0x61, type: 'time', size: 5 },
+    { byte: 0x62, type: 'datetime', size: 9 },
+    /** Variable size array types */
+    { byte: 0x80, type: 'bool[]', size: -1 },
+    { byte: 0x81, type: 'string', size: -1 },
+    { byte: 0x82, type: 'json', size: -1 },
+    { byte: 0xa0, type: 'u8[]', size: -1 },
+    { byte: 0xa1, type: 'u16[]', size: -1 },
+    { byte: 0xa2, type: 'u32[]', size: -1 },
+    { byte: 0xa8, type: 'i8[]', size: -1 },
+    { byte: 0xa9, type: 'i16[]', size: -1 },
+    { byte: 0xaa, type: 'i32[]', size: -1 },
+    { byte: 0xb0, type: 'float[]', size: -1 },
+    { byte: 0xb1, type: 'double[]', size: -1 },
 ];
+var x8Sizes = ['double', 'double[]'];
+var x4Sizes = ['u32', 'i32', 'float', 'u32[]', 'i32[]', 'float[]'];
+var x2Sizes = ['u16', 'i16', 'u16[]', 'i16[]'];
+exports.sizeFactor = function (type) { return (x8Sizes.indexOf(type) >= 0 ? 8 :
+    x4Sizes.indexOf(type) >= 0 ? 4 :
+        x2Sizes.indexOf(type) >= 0 ? 2 :
+            1); };
 var b2cMap = BMclasses.reduce(function (acc, _a) {
     var byte = _a.byte, cls = _a.cls;
     return acc.set(byte, cls);

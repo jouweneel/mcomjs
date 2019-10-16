@@ -1,16 +1,13 @@
 "use strict";
 exports.__esModule = true;
 var bytecodes_1 = require("./bytecodes");
-var div = function (type) { return ((type === 'u32' || type === 'i32' || type === 'u32a' || type === 'i32a') ? 4 :
-    (type === 'u16' || type === 'i16' || type === 'u16a' || type === 'i16a') ? 2 :
-        1); };
 var parseHeader = function (buf) {
     var cls = bytecodes_1.b2c(buf.readUInt8(0));
     var keySize = buf.readUInt8(1);
-    var key = buf.slice(2, 2 + keySize).toString();
+    var key = buf.slice(2, 1 + keySize).toString();
     var byte = buf.readUInt8(2 + keySize);
     var _a = bytecodes_1.b2ts(byte), type = _a.type, typeSize = _a.size;
-    var dataSize = (typeSize >= 0) ? typeSize : buf.readUInt32LE(2 + keySize + 1);
+    var dataSize = (typeSize >= 0) ? typeSize : buf.readUInt32LE(3 + keySize);
     return {
         cls: cls,
         key: key,
@@ -19,7 +16,7 @@ var parseHeader = function (buf) {
         offset: (typeSize >= 0) ? keySize + 3 : keySize + 7
     };
 };
-var readInt = function (buf, type, offset) {
+var readNumber = function (buf, type, offset) {
     if (offset === void 0) { offset = 0; }
     switch (type) {
         case 'u8': return buf.readUInt8(offset);
@@ -28,23 +25,52 @@ var readInt = function (buf, type, offset) {
         case 'i8': return buf.readInt8(offset);
         case 'i16': return buf.readInt16LE(offset);
         case 'i32': return buf.readInt32LE(offset);
+        case 'float': return buf.readFloatLE(offset);
+        case 'double': return buf.readDoubleLE(offset);
     }
 };
-var readIntA = function (buf, type) {
-    var elmType = type.slice(0, -1);
+var readNumberArray = function (buf, type) {
+    var elmType = type.slice(0, -2);
     var result = [];
-    for (var i = 0; i < buf.length; i += div(elmType)) {
-        result.push(readInt(buf, elmType, i));
+    for (var i = 0; i < buf.length; i += bytecodes_1.sizeFactor(elmType)) {
+        result.push(readNumber(buf, elmType, i));
     }
     switch (type) {
-        case 'u8a': return Uint8Array.from(result);
-        case 'u16a': return Uint16Array.from(result);
-        case 'u32a': return Uint32Array.from(result);
-        case 'i8a': return Int8Array.from(result);
-        case 'i16a': return Int16Array.from(result);
-        case 'i32a': return Int32Array.from(result);
+        case 'u8[]': return Uint8Array.from(result);
+        case 'u16[]': return Uint16Array.from(result);
+        case 'u32[]': return Uint32Array.from(result);
+        case 'i8[]': return Int8Array.from(result);
+        case 'i16[]': return Int16Array.from(result);
+        case 'i32[]': return Int32Array.from(result);
+        case 'float[]': return Float32Array.from(result);
+        case 'double[]': return Float64Array.from(result);
         default: throw new Error("Type " + type + " is not an integer array type");
     }
+};
+var readDateTime = function (buf, type) {
+    var i = (type === 'datetime') ? 4 : 0;
+    var output = '';
+    switch (type) {
+        case 'date':
+        case 'datetime':
+            var year = buf.readUInt16LE(0);
+            var month = buf.readUInt8(2);
+            var day = buf.readUInt8(2);
+            output = year + "-" + month + "-" + day;
+            if (type === 'date') {
+                break;
+            }
+            else {
+                output += ' ';
+            }
+        case 'time':
+            var hours = buf.readUInt8(i);
+            var mins = buf.readUInt8(i + 1);
+            var secs = buf.readUInt8(i + 2);
+            var ms = buf.readUInt16LE(i + 3);
+            output += hours + ":" + mins + ":" + secs + "." + ms;
+    }
+    return output;
 };
 var decodeBm = function (buffer, bufOffset) {
     if (bufOffset === void 0) { bufOffset = 0; }
@@ -65,25 +91,31 @@ var decodeBm = function (buffer, bufOffset) {
         case 'i8':
         case 'i16':
         case 'i32':
-            data = readInt(buf, type);
-            break;
-        case 'u8a':
-        case 'u16a':
-        case 'u32a':
-        case 'i8a':
-        case 'i16a':
-        case 'i32a':
-            data = readIntA(buf, type);
+        case 'float':
+        case 'double':
+            data = readNumber(buf, type);
             break;
         case 'hsv':
         case 'rgb':
         case 'rgbw':
-            data = readIntA(buf, 'u8a');
+            data = readNumberArray(buf, 'u8[]');
             break;
-        case 'string':
+        case 'u8[]':
+        case 'u16[]':
+        case 'u32[]':
+        case 'i8[]':
+        case 'i16[]':
+        case 'i32[]':
+        case 'float[]':
+        case 'double[]':
+            data = readNumberArray(buf, type);
+            break;
         case 'date':
         case 'time':
         case 'datetime':
+            data = readDateTime(buf, type);
+            break;
+        case 'string':
             data = buf.toString();
             break;
         case 'json':
