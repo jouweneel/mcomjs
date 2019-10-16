@@ -37,59 +37,21 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var dgram_1 = require("dgram");
-var bytecodes_1 = require("./bytecodes");
-var packets_1 = require("./packets");
 var util_1 = require("../util");
 var logger_1 = require("../../logger");
-var logger = logger_1.taglogger('transport-Xudp');
-exports.Xudp = function (_a) {
+var logger = logger_1.taglogger('transport-Udp');
+exports.Udp = function (_a) {
     var port = _a.port;
     return new Promise(function (resolve, reject) {
         try {
             var socket_1 = dgram_1.createSocket('udp4');
             var bcastIp_1 = util_1.getIp(true);
             var subs_1 = [];
-            var transmit_1 = function (t_ip, t_port, data) { return new Promise(function (resolve, reject) {
+            var emit = function (data, ctx) { return new Promise(function (resolve, reject) {
+                var t_port = ctx.port || port;
+                var t_ip = ctx.broadcast ? bcastIp_1 : ctx.ip;
                 socket_1.send(data, t_port, t_ip, function (err, size) {
                     return err ? reject(err) : resolve(size);
-                });
-            }); };
-            var emit = function (data, ctx) { return __awaiter(void 0, void 0, void 0, function () {
-                var ip, t_port, packets, size, _i, packets_2, packet, _a, e_1;
-                return __generator(this, function (_b) {
-                    switch (_b.label) {
-                        case 0:
-                            _b.trys.push([0, 5, , 6]);
-                            ip = ctx.broadcast ? bcastIp_1 : ctx.ip;
-                            t_port = (ctx.port === undefined) ? port : ctx.port;
-                            packets = packets_1.build({
-                                data: data,
-                                id: (ctx.id === undefined) ? 255 : ctx.id,
-                                cls: (ctx.cls === undefined) ? 0 : bytecodes_1.c2b(ctx.cls)
-                            });
-                            size = 0;
-                            _i = 0, packets_2 = packets;
-                            _b.label = 1;
-                        case 1:
-                            if (!(_i < packets_2.length)) return [3 /*break*/, 4];
-                            packet = packets_2[_i];
-                            _a = size;
-                            return [4 /*yield*/, transmit_1(ip, t_port, packet)];
-                        case 2:
-                            size = _a + _b.sent();
-                            _b.label = 3;
-                        case 3:
-                            _i++;
-                            return [3 /*break*/, 1];
-                        case 4:
-                            logger.debug("Sent " + packets.length + " packets (" + data.length + "->" + size + " bytes)");
-                            return [2 /*return*/, size];
-                        case 5:
-                            e_1 = _b.sent();
-                            logger.error(e_1);
-                            return [3 /*break*/, 6];
-                        case 6: return [2 /*return*/];
-                    }
                 });
             }); };
             var on = function (callback) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
@@ -103,19 +65,9 @@ exports.Xudp = function (_a) {
             socket_1.on('error', reject);
             socket_1.on('message', function (data, info) {
                 var ctx = { ip: info.address, port: info.port };
-                try {
-                    var message = packets_1.collect(data);
-                    if (message != null) {
-                        ctx.id = message.id;
-                        ctx.cls = bytecodes_1.b2c(message.cls);
-                        for (var _i = 0, subs_2 = subs_1; _i < subs_2.length; _i++) {
-                            var sub = subs_2[_i];
-                            sub(message.data, ctx);
-                        }
-                    }
-                }
-                catch (e) {
-                    logger.error(e);
+                for (var _i = 0, subs_2 = subs_1; _i < subs_2.length; _i++) {
+                    var sub = subs_2[_i];
+                    sub(data, ctx);
                 }
             });
             socket_1.on('listening', function () {

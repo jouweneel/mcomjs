@@ -3,18 +3,18 @@ import { createSocket } from 'dgram'
 import { c2b, b2c } from './bytecodes'
 import { build, collect } from './packets'
 import { XudpConfig, XudpContext } from './types'
-import { Sub, TransportFn, XTransport } from '../types'
+import { Sub, TransportFn, Transport } from '../types_private'
 import { getIp } from '../util'
 import { taglogger } from '../../logger'
 
-type Transport = XTransport<XudpContext>
+type UdpTransport = Transport<XudpContext>
 type XudpSub = Sub<XudpContext>
 
 const logger = taglogger('transport-Xudp');
 
-export const Xudp: TransportFn<XudpConfig, Transport> = ({
+export const Xudp: TransportFn<XudpConfig, UdpTransport> = ({
   port
-}: XudpConfig) => new Promise((resolve, reject) => {
+}) => new Promise((resolve, reject) => {
   try {
     const socket = createSocket('udp4');
     const bcastIp = getIp(true);
@@ -27,8 +27,8 @@ export const Xudp: TransportFn<XudpConfig, Transport> = ({
         err ? reject(err) : resolve(size));
     });
 
-    const emit: Transport['emit'] = async (
-      ctx, data
+    const emit: UdpTransport['emit'] = async (
+      data, ctx
     ) => {
       try {
         const ip = ctx.broadcast ? bcastIp : ctx.ip;
@@ -50,7 +50,7 @@ export const Xudp: TransportFn<XudpConfig, Transport> = ({
       }
     };
 
-    const on: Transport['on'] = async (callback) => subs.push(callback);
+    const on: UdpTransport['on'] = async (callback) => subs.push(callback);
 
     const connector = {
       emit,
@@ -68,7 +68,7 @@ export const Xudp: TransportFn<XudpConfig, Transport> = ({
           ctx.cls = b2c(message.cls);
 
           for (const sub of subs) {
-            sub(ctx, message.data);
+            sub(message.data, ctx);
           }
         }
       } catch(e) {

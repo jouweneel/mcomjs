@@ -1,30 +1,43 @@
 "use strict";
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 exports.__esModule = true;
 var child_process_1 = require("child_process");
 var os_1 = require("os");
 var ramda_1 = require("ramda");
-exports.getIp = function (broadcast, ifaceStrings) {
-    if (broadcast === void 0) { broadcast = false; }
-    if (ifaceStrings === void 0) { ifaceStrings = ['eth0', 'en0', 'enp5s0']; }
+exports.getInterface = function (ifaceStrings) {
+    if (ifaceStrings === void 0) { ifaceStrings = []; }
+    var strings = __spreadArrays(['eth0', 'en0', 'enp5s0'], ifaceStrings);
     var ifaces = os_1.networkInterfaces();
-    for (var i = 0; i < ifaceStrings.length; i++) {
-        var ip = ramda_1.path([ifaceStrings[i], 0, 'address'], ifaces);
-        if (ip) {
-            if (broadcast) {
-                var parts = ip.split('.');
-                parts[3] = '255';
-                return parts.join('.');
-            }
-            else {
-                return ip;
-            }
+    for (var i = 0; i < strings.length; i++) {
+        var iface = ramda_1.path([strings[i], 0], ifaces);
+        if (iface) {
+            return iface;
         }
     }
-    throw new Error("util.getIp: no ip found");
+    throw new Error("getInterfaces: no interface found in " + JSON.stringify(strings));
 };
-exports.getMac = function () {
-    var ifaces = os_1.networkInterfaces();
-    return ramda_1.pathOr(ramda_1.path(['en0', 0, 'mac'], ifaces), ['eth0', 0, 'mac'], ifaces);
+exports.getIp = function (broadcast, ifaceStrings) {
+    if (broadcast === void 0) { broadcast = false; }
+    var iface = exports.getInterface(ifaceStrings);
+    var ip = iface.address;
+    if (broadcast) {
+        var parts = ip.split('.');
+        parts[3] = '255';
+        return parts.join('.');
+    }
+    else {
+        return ip;
+    }
+};
+exports.getMac = function (ifaceStrings) {
+    var iface = exports.getInterface(ifaceStrings);
+    return iface.mac;
 };
 exports.matchRoute = function (match, route) {
     var matchParts = match.split('/');

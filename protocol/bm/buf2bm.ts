@@ -1,6 +1,5 @@
 import { b2c, b2ts, sizeFactor } from './bytecodes'
 import { BM, BMtype, BMclass } from './types'
-import moment = require('moment');
 
 const parseHeader = (
   buf: Buffer

@@ -11,11 +11,13 @@
     "colors": "^1.4.0",
     "moment": "^2.24.0",
     "ramda": "^0.26.1",
+    "serialport": "^7.1.5",
     "uuid": "^3.3.3"
   },
   "devDependencies": {
     "@types/node": "^12.7.12",
     "@types/ramda": "^0.26.33",
+    "@types/serialport": "^7.0.4",
     "@types/uuid": "^3.4.5",
     "ts-node": "^8.4.1",
     "typescript": "^3.6.4"

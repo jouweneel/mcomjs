@@ -1,5 +1,3 @@
-import moment, { Moment } from 'moment'
-
 import { c2b, t2bs, sizeFactor } from './bytecodes'
 import { BM, BMtype, BMclass } from './types'
 

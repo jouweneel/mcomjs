@@ -1,25 +1,23 @@
-export * from './xudp/types'
+import { UdpConfig, UdpContext } from './udp/types'
+import { XudpConfig, XudpContext } from './xudp/types'
+import { Rs232Context, Rs232Config } from './rs232/types'
+import { Transport, TransportFn } from './types_private'
 
-/**
- * support:
- * - broadcast
- * - req/res and/or emit/on
- */
 
-export interface EventTransport<T> {
-  emit: (ctx: T, data?: Buffer) => Promise<number>
-  on: (callback: (ctx: T, data: Buffer) => void) => void
-  stop: () => Promise<any>
+export interface Transports {
+  Rs232: TransportFn<Rs232Config, Transport<Rs232Context>>
+  Udp: TransportFn<UdpConfig, Transport<UdpContext>>
+  Xudp: TransportFn<XudpConfig, Transport<XudpContext>>
 }
 
-export interface ReqResTransport<T> {
-  request?: (ctx: T, data: Buffer) => Promise<Buffer>
-  respond?: (callback: (ctx: T, data: Buffer) => void) => void
-  stop: () => Promise<any>
+export interface TransportConfigs {
+  Rs232: Rs232Config
+  Udp: UdpConfig
+  Xudp: XudpConfig
 }
 
-export type XTransport<T> = EventTransport<T> & ReqResTransport<T>
-
-export type TransportFn<C,T> = (cfg: C) => Promise<T>
-
-export type Sub<T> = (ctx: T, data?: Buffer) => void
+export interface TransportContexts {
+  Rs232: Rs232Context
+  Udp: UdpContext
+  Xudp: XudpContext
+}

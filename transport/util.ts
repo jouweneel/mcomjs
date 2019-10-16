@@ -1,31 +1,38 @@
 import { exec } from 'child_process'
-import { networkInterfaces } from 'os'
-import { path, pathOr } from 'ramda'
+import { networkInterfaces, NetworkInterfaceInfo } from 'os'
+import { path } from 'ramda'
+
+export const getInterface = (ifaceStrings: string[] = []): NetworkInterfaceInfo => {
+  const strings = ['eth0', 'en0', 'enp5s0', ...ifaceStrings];
+  const ifaces = networkInterfaces();
+
+  for (let i = 0; i < strings.length; i++) {
+    const iface = path<NetworkInterfaceInfo>([strings[i], 0], ifaces);
+    if (iface) {
+      return iface;
+    }
+  }
+  throw new Error(`getInterfaces: no interface found in ${JSON.stringify(strings)}`);
+}
 
 export const getIp = (
   broadcast: boolean = false,
-  ifaceStrings: string[] = ['eth0', 'en0', 'enp5s0']
+  ifaceStrings?: string[]
 ) => {
-  const ifaces = networkInterfaces();
-
-  for (let i = 0; i < ifaceStrings.length; i++) {
-    const ip: string = path([ifaceStrings[i], 0, 'address'], ifaces);
-    if (ip) {
-      if (broadcast) {
-        const parts = ip.split('.');
-        parts[3] = '255';
-        return parts.join('.');
-      } else {
-        return ip;
-      }
-    }
+  const iface = getInterface(ifaceStrings);
+  const ip = iface.address;
+  if (broadcast) {
+    const parts = ip.split('.');
+    parts[3] = '255';
+    return parts.join('.');
+  } else {
+    return ip;
   }
-  throw new Error(`util.getIp: no ip found`);
 }
 
-export const getMac = () => {
-  const ifaces = networkInterfaces();
-  return pathOr(path(['en0', 0, 'mac'], ifaces), ['eth0', 0, 'mac'], ifaces);
+export const getMac = (ifaceStrings?: string[]) => {
+  const iface = getInterface(ifaceStrings);
+  return iface.mac;
 }
 
 export const matchRoute = (match: string, route: string) => {

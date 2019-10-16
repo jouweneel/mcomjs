@@ -1,6 +1,4 @@
-import moment from 'moment'
-
-import { bm2buf, buf2bm, bms2buf, buf2bms } from '../../protocol'
+import { Bm } from '../../protocol'
 import { BM } from '../../protocol/types'
 
 const test: BM[] = [
@@ -41,18 +39,7 @@ const test: BM[] = [
   { key: 'bm_json', type: 'json', data: { dingen: 'en sjit'} }
 ]
 
-for (const bm of test) {
-  const buf = bm2buf(bm);
-
-  const parsed = buf2bm(buf);
-  console.log('\n');
-  console.log(bm);
-  console.log(buf);
-  const { cls, ...rest } = parsed;
-  console.log(rest);
-}
-
-const buf = bms2buf(test);
-console.log('THE MEGABUF', buf);
-const parsed = buf2bms(buf) as BM[];
-console.log('THE MEGAPARSE', parsed);
+const buf = Bm.encode(test);
+console.log(`Encoded (${buf.length} bytes):`, buf);
+const decoded = Bm.decode(buf);
+console.log('Decoded:', decoded);
