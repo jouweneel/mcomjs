@@ -14,8 +14,8 @@ const test = async () => {
   http_buf.respond((data, ctx) => Buffer.from(`${data.toString()} -> response :)`));
   
   udp_bm.emit([
-    { key: '8-bit int', type: 'i8', data: -2 },
-    { key: 'double array', type: 'double[]', data: [3.1415, 8e5] }
+    { key: 'str', type: 'string', data: 'hoi' },
+    { key: 'str2', type: 'string', data: 'hoi!' },
   ], { ip: 'localhost', port: 2222 });
 
   const response = await http_buf.request(Buffer.from('REQUEST'));

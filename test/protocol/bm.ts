@@ -2,10 +2,10 @@ import { Bm } from '../../protocol'
 import { BM } from '../../protocol/bm/types'
 
 const test: BM[] = [
-  { key: 'bm_bool', type: 'bool', data: true, cls: 'cmd' },
-  { key: 'bm_char', type: 'char', data: 'a', cls: 'data' },
+  { key: 'bm_bool', type: 'bool', data: true, cls: 0x01 },
+  { key: 'bm_char', type: 'char', data: 'a', cls: 0x10 },
 
-  { key: 'bm_u8', type: 'u8', data: 1, cls: 'state' },
+  { key: 'bm_u8', type: 'u8', data: 1, cls: 0xff },
   { key: 'bm_u16', type: 'u16', data: 256 },
   { key: 'bm_u32', type: 'u32', data: 65537 },
 
@@ -24,7 +24,7 @@ const test: BM[] = [
   { key: 'bm_i16[]', type: 'i16[]', data: [ -256, 256 ] },
   { key: 'bm_i32[]', type: 'i32[]', data: [ -65537, 65537 ] },
 
-  { key: 'bm_float', type: 'float[]', data: [3.14, 3.15] },
+  { key: 'bm_float', type: 'float[]', data: Float32Array.from([3.14, 3.15]) },
   { key: 'bm_double', type: 'double[]', data: [4.15, 5.16] },
 
   { key: 'bm_hsv', type: 'hsv', data: [0, 128, 255] },

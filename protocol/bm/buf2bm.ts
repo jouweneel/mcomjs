@@ -95,7 +95,7 @@ const decodeBm = (buffer: Buffer, bufOffset: number = 0): BM => {
       case 'float[]': case 'double[]': data = readNumberArray(buf, type); break;
     
     case 'date': case 'time': case 'datetime': data = readDateTime(buf, type); break;
-    case 'string': data = buf.toString(); break;
+    case 'string': data = buf.toString().slice(0, -1); break;
     case 'json': data = JSON.parse(buf.toString()); break;
     default: throw new Error(`buf2bm: Uknown BMtype ${type}`);
   }

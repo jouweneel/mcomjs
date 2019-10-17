@@ -21,9 +21,12 @@ const buildHeader = (
   if (typeSize < 0) {
     dataSize = dataSize * sizeFactor(type);
   }
+  if (type === 'string') {
+    dataSize++; // Make room for null terminator
+  }
 
   const headerSize = 2 + keySize + (typeSize >= 0 ? 1 : 5);
-  const header = Buffer.alloc(headerSize, 0);
+  const header = Buffer.alloc(headerSize, 0).fill(0);
 
   header.writeUInt8(cls, 0);
   header.writeUInt8(keySize, 1);
@@ -102,7 +105,7 @@ export const bm2buf = ({ cls, key, type, size, data }: BM): Buffer => {
 
     case 'date': case 'time': case 'datetime': writeDateTime(buf, type, data); break;
 
-    case 'string': buf.write(data); break;
+    case 'string': buf.write(`${data}\0`); break;
     case 'json': buf.write(JSON.stringify(data)); break;
 
     case 'bool[]': case 'u8[]': case 'u16[]': case 'u32[]':
@@ -111,7 +114,6 @@ export const bm2buf = ({ cls, key, type, size, data }: BM): Buffer => {
 
     default: throw new Error(`bm2buf: Unknown BMtype ${type}`);
   }
-
   return Buffer.concat([ header, buf ]);
 }
 
