@@ -1,12 +1,4 @@
-import { BMclass, BMtype } from './types'
-
-const BMclasses: { byte: number, cls: BMclass }[] = [
-  { byte: 0x00, cls: 'sys' },
-
-  { byte: 0x10, cls: 'cmd' },
-  { byte: 0x20, cls: 'data' },
-  { byte: 0x30, cls: 'state' }
-]
+import { BMtype } from './types'
 
 const BMtypes: { byte: number, type: BMtype, size: number }[] = [
 /** Single value types */
@@ -61,15 +53,6 @@ export const sizeFactor = (type: BMtype) => (
   1
 );
 
-const b2cMap = BMclasses.reduce(
-  (acc, { byte, cls }) => acc.set(byte, cls),
-  new Map<number, string>()
-);
-const c2bMap = BMclasses.reduce(
-  (acc, { byte, cls }) => acc.set(cls, byte),
-  new Map<string, number>()
-)
-
 const b2tMap = BMtypes.reduce(
   (acc, { byte, type }) => acc.set(byte, type),
   new Map<number, BMtype>()
@@ -87,9 +70,6 @@ const t2bsMap = BMtypes.reduce(
   (acc, { byte, type, size }) => acc.set(type, { byte, size }),
   new Map<BMtype, {byte: number, size: number}>()
 );
-
-export const b2c = b2cMap.get.bind(b2cMap);
-export const c2b = c2bMap.get.bind(c2bMap);
 
 export const b2t = b2tMap.get.bind(b2tMap);
 export const b2ts = b2tsMap.get.bind(b2tsMap);

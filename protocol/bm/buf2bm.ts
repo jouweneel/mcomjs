@@ -1,10 +1,10 @@
-import { b2c, b2ts, sizeFactor } from './bytecodes'
-import { BM, BMtype, BMclass } from './types'
+import { b2ts, sizeFactor } from './bytecodes'
+import { BM, BMtype } from './types'
 
 const parseHeader = (
   buf: Buffer
-): { cls: BMclass, key: string, type: BMtype, size: number, offset: number } => {
-  const cls = b2c(buf.readUInt8(0));
+): { cls: number, key: string, type: BMtype, size: number, offset: number } => {
+  const cls = buf.readUInt8(0);
   const keySize = buf.readUInt8(1);
   const key = buf.slice(2, 1 + keySize).toString();
   const byte = buf.readUInt8(2 + keySize);

@@ -1,5 +1,3 @@
-export type BMclass = 'sys' | 'cmd' | 'data' | 'state'
-
 export type BMtype =
 /** Single value types */
   'bool' | 'char' |               // Basic
@@ -20,7 +18,7 @@ export type BMtype =
   'float[]' | 'double[]'          // Float array
 
 export interface BM {
-  cls?: BMclass
+  cls?: number
   key: string
   data: any
   type: BMtype

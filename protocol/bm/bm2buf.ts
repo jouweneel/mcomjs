@@ -1,8 +1,8 @@
-import { c2b, t2bs, sizeFactor } from './bytecodes'
-import { BM, BMtype, BMclass } from './types'
+import { t2bs, sizeFactor } from './bytecodes'
+import { BM, BMtype } from './types'
 
 const buildHeader = (
-  cls: BMclass = 'sys', key: string, type: BMtype, size: number, data: any
+  cls: number = 0, key: string, type: BMtype, size: number, data: any
 ): { dataSize: number, header: Buffer } => {
   const { byte, size: typeSize } = t2bs(type);
   const keySize = key.length + 1;
@@ -25,7 +25,7 @@ const buildHeader = (
   const headerSize = 2 + keySize + (typeSize >= 0 ? 1 : 5);
   const header = Buffer.alloc(headerSize, 0);
 
-  header.writeUInt8(c2b(cls), 0);
+  header.writeUInt8(cls, 0);
   header.writeUInt8(keySize, 1);
   header.write(key, 2);
   header.writeUInt8(byte, keySize + 2);
