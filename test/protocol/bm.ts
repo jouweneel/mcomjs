@@ -1,5 +1,5 @@
 import { Bm } from '../../protocol'
-import { BM } from '../../protocol/types'
+import { BM } from '../../protocol/bm/types'
 
 const test: BM[] = [
   { key: 'bm_bool', type: 'bool', data: true, cls: 'cmd' },

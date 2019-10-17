@@ -31,7 +31,7 @@ var debug = function (tag) { return function () {
     filelog(prefix(tag) + " (debug)", args);
 }; };
 var error = function (tag) { return function (err, fatal) {
-    console.log(colors_1["default"].red(prefix(tag)), err.message, colors_1["default"].red(err.stack));
+    console.log(colors_1["default"].red(prefix(tag)), err.message, '\n', colors_1["default"].red(err.stack));
     filelog(prefix(tag) + " (error)", [err.message, err.stack.split('\n')[1].trim()]);
     fatal && process.exit(0);
 }; };

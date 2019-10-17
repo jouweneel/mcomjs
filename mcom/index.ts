@@ -16,7 +16,7 @@ export const MCom = async <P extends keyof ProtocolTypes, T extends keyof Transp
   type Context = TransportContexts[T]
   type Input = ProtocolTypes[P]
 
-  const emit = async (data: Input, ctx: Context) => {
+  const emit = async (data: Input, ctx?: Context) => {
     if (!transport.emit) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'emit'`));
     } else {
@@ -24,7 +24,7 @@ export const MCom = async <P extends keyof ProtocolTypes, T extends keyof Transp
     }
   };
 
-  const on = async (callback: (data: Input, ctx: Context) => void) => {
+  const on = async (callback: (data: Input, ctx?: Context) => void) => {
     if (!transport.on) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'on'`));
     } else {
@@ -32,7 +32,7 @@ export const MCom = async <P extends keyof ProtocolTypes, T extends keyof Transp
     }
   };
 
-  const request = async (data: Input, ctx: Context) => {
+  const request = async (data: Input, ctx?: Context) => {
     if (!transport.request) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'request'`));
     } else {
@@ -40,11 +40,11 @@ export const MCom = async <P extends keyof ProtocolTypes, T extends keyof Transp
     }
   };
 
-  const respond = async (callback: (data: Input, ctx: Context) => void) => {
+  const respond = async (callback: (data: Input, ctx?: Context) => void) => {
     if (!transport.respond) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'respond'`));
     } else {
-      return transport.respond((data, ctx) => callback(protocol.decode(data) as any, ctx as any));
+      return transport.respond((data, ctx) => callback(protocol.decode(data) as any, ctx as any) as any);
     }
   };
   

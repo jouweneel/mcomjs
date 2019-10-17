@@ -20,7 +20,7 @@ const debug = (tag: string) => (...args: any[]) => {
 }
 
 const error = (tag: string) => (err: Error, fatal?: boolean) => {
-  console.log(colors.red(prefix(tag)), err.message, colors.red(err.stack));
+  console.log(colors.red(prefix(tag)), err.message, '\n', colors.red(err.stack));
   filelog(`${prefix(tag)} (error)`, [err.message, err.stack.split('\n')[1].trim()]);
   fatal && process.exit(0);
 }
