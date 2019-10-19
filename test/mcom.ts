@@ -1,24 +1,37 @@
 import { MCom } from '../mcom'
-import { taglogger } from '../logger';
-
-const udplogger = taglogger('udp_buf');
-const comlogger = taglogger('com_buf');
 
 const test = async () => {
-  // const com_buf = await MCom({ protocol: 'Buf', transport: 'Rs232', config: { port: '/dev/ttyUSB0', baudRate: 115200 } });
-  const udp_bm = await MCom({ protocol: 'Bm', transport: 'Udp', config: { port: 2222 } });
-  const http_buf = await MCom({ protocol: 'Buf', transport: 'Http', config: { port: 2020 } });
-
-  // com_buf.on(data => comlogger.log(data.toString()));
-  udp_bm.on((data, { ip, port }) => udplogger.log(`${ip}:${port} sent:\n`, data));
-  http_buf.respond((data, ctx) => Buffer.from(`${data.toString()} -> response :)`));
-  
-  udp_bm.emit([
-    { key: 'str', type: 'string', data: 'hoi' },
-    { key: 'str2', type: 'string', data: 'hoi!' },
+  /** ByteMap over UDP */
+  const udp = await MCom({
+    protocol: 'Bm', transport: 'Udp', config: { port: 2222 }
+  });
+    // On incoming data
+  udp.on((data, { ip, port }) => {
+    console.log(`${ip}:${port} sent`, data);
+    udp.emit(data, { ip: 'localhost', port: 3333 });
+  });
+    // Send some data
+  udp.emit([
+    { key: 'str', type: 'string', data: 'Testinguuuu' },
+    { key: 'str2', type: 'string', data: '@ITs' },
   ], { ip: 'localhost', port: 2222 });
 
-  const response = await http_buf.request(Buffer.from('REQUEST'));
-  console.log('RESPONSE:', response.toString());
+  /** Buffer over RS232 */
+  const com = await MCom({
+    protocol: 'Buf', transport: 'Rs232', config: {
+      port: '/dev/ttyUSB0', baudRate: 115200
+    }
+  });
+    // On incoming data
+  com.on(data => console.log(data.toString()));
+
+  /** Buffer over HTTP (Request/Response) */
+  const http = await MCom({ protocol: 'Buf', transport: 'Http', config: { port: 2020 } });
+    // Send response on incoming request
+  http.respond((data, ctx) => Buffer.from(`${data.toString()} -> response :)`));
+    // Make request and wait for response
+  const response = await http.request(Buffer.from('REQUEST'));
+  console.log(`Response: ${response.toString()}`);
+  
 }
 test();

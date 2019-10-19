@@ -1,11 +1,5 @@
 "use strict";
 exports.__esModule = true;
-var BMclasses = [
-    { byte: 0x00, cls: 'sys' },
-    { byte: 0x10, cls: 'cmd' },
-    { byte: 0x20, cls: 'data' },
-    { byte: 0x30, cls: 'state' }
-];
 var BMtypes = [
     /** Single value types */
     { byte: 0x10, type: 'bool', size: 1 },
@@ -45,14 +39,6 @@ exports.sizeFactor = function (type) { return (x8Sizes.indexOf(type) >= 0 ? 8 :
     x4Sizes.indexOf(type) >= 0 ? 4 :
         x2Sizes.indexOf(type) >= 0 ? 2 :
             1); };
-var b2cMap = BMclasses.reduce(function (acc, _a) {
-    var byte = _a.byte, cls = _a.cls;
-    return acc.set(byte, cls);
-}, new Map());
-var c2bMap = BMclasses.reduce(function (acc, _a) {
-    var byte = _a.byte, cls = _a.cls;
-    return acc.set(cls, byte);
-}, new Map());
 var b2tMap = BMtypes.reduce(function (acc, _a) {
     var byte = _a.byte, type = _a.type;
     return acc.set(byte, type);
@@ -69,8 +55,6 @@ var t2bsMap = BMtypes.reduce(function (acc, _a) {
     var byte = _a.byte, type = _a.type, size = _a.size;
     return acc.set(type, { byte: byte, size: size });
 }, new Map());
-exports.b2c = b2cMap.get.bind(b2cMap);
-exports.c2b = c2bMap.get.bind(c2bMap);
 exports.b2t = b2tMap.get.bind(b2tMap);
 exports.b2ts = b2tsMap.get.bind(b2tsMap);
 exports.t2b = t2bMap.get.bind(t2bMap);

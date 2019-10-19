@@ -2,7 +2,7 @@
 exports.__esModule = true;
 var bytecodes_1 = require("./bytecodes");
 var buildHeader = function (cls, key, type, size, data) {
-    if (cls === void 0) { cls = 'sys'; }
+    if (cls === void 0) { cls = 0; }
     var _a = bytecodes_1.t2bs(type), byte = _a.byte, typeSize = _a.size;
     var keySize = key.length + 1;
     var dataSize = (typeSize >= 0) ? typeSize : size;
@@ -23,9 +23,12 @@ var buildHeader = function (cls, key, type, size, data) {
     if (typeSize < 0) {
         dataSize = dataSize * bytecodes_1.sizeFactor(type);
     }
+    if (type === 'string') {
+        dataSize++;
+    }
     var headerSize = 2 + keySize + (typeSize >= 0 ? 1 : 5);
-    var header = Buffer.alloc(headerSize, 0);
-    header.writeUInt8(bytecodes_1.c2b(cls), 0);
+    var header = Buffer.alloc(headerSize, 0).fill(0);
+    header.writeUInt8(cls, 0);
     header.writeUInt8(keySize, 1);
     header.write(key, 2);
     header.writeUInt8(byte, keySize + 2);
@@ -132,7 +135,7 @@ exports.bm2buf = function (_a) {
             writeDateTime(buf, type, data);
             break;
         case 'string':
-            buf.write(data);
+            buf.write(data + "\0");
             break;
         case 'json':
             buf.write(JSON.stringify(data));

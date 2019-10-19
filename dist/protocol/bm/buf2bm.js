@@ -2,7 +2,7 @@
 exports.__esModule = true;
 var bytecodes_1 = require("./bytecodes");
 var parseHeader = function (buf) {
-    var cls = bytecodes_1.b2c(buf.readUInt8(0));
+    var cls = buf.readUInt8(0);
     var keySize = buf.readUInt8(1);
     var key = buf.slice(2, 1 + keySize).toString();
     var byte = buf.readUInt8(2 + keySize);
@@ -116,7 +116,7 @@ var decodeBm = function (buffer, bufOffset) {
             data = readDateTime(buf, type);
             break;
         case 'string':
-            data = buf.toString();
+            data = buf.toString().slice(0, -1);
             break;
         case 'json':
             data = JSON.parse(buf.toString());

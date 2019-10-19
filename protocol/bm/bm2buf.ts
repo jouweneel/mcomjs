@@ -22,7 +22,7 @@ const buildHeader = (
     dataSize = dataSize * sizeFactor(type);
   }
   if (type === 'string') {
-    dataSize++; // Make room for null terminator
+    dataSize++;
   }
 
   const headerSize = 2 + keySize + (typeSize >= 0 ? 1 : 5);

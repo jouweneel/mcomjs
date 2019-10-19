@@ -9,10 +9,10 @@ const input = readFileSync('in.jpg');
 
 const test = async () => {
   const xudp = await Xudp(cfg);
-  xudp.on((ctx, data) => {
+  xudp.on((data, ctx) => {
     writeFileSync(`out${ctx.id}.jpg`, data);
   });
 
-  await xudp.emit({ ip }, input);
+  await xudp.emit(input, { ip });
 }
 test();
