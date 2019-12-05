@@ -10,7 +10,7 @@ const prefix = (tag: string) => `${moment().format('YYYY-MM-DD HH:mm:ss:SSS')} [
 
 const filelog = (prefix: string, args: any[]) => {
   file && writeSync(file, `${prefix} `);
-  args.map(arg => file && writeSync(file, typeof arg === 'string' ? `${arg} ` : JSON.stringify(arg, null, '  ')));
+  args.map(arg => file && writeSync(file, JSON.stringify(arg, null, '  ')));
   file && writeSync(file, '\n');
 }
 
@@ -20,8 +20,8 @@ const debug = (tag: string) => (...args: any[]) => {
 }
 
 const error = (tag: string) => (err: Error, fatal?: boolean) => {
-  console.log(colors.red(prefix(tag)), err.message, '\n', colors.red(err.stack));
-  filelog(`${prefix(tag)} (error)`, [err.message, err.stack.split('\n')[1].trim()]);
+  console.log(colors.red(prefix(tag)), err.message, colors.red('\n\tStack:'), err.stack);
+  filelog(`${prefix(tag)} (error)`, [err.message, err.stack.split('\n')]);
   fatal && process.exit(0);
 }
 

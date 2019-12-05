@@ -4,6 +4,7 @@ export interface Transport<T> {
   request?: (data: Buffer, ctx?: T) => Promise<Buffer>
   respond?: (respond: (data: Buffer, ctx?: T) => Buffer) => void
   stop?: () => Promise<any>
+  start?: () => Promise<any>
 }
 
 export type TransportFn<C,T> = (cfg: C) => Promise<T>

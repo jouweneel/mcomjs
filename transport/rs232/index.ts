@@ -11,9 +11,10 @@ const logger = taglogger('transport-Rs232');
 
 export const Rs232: TransportFn<Rs232Config, Rs232Transport> = ({
   port, ...options
-}) => new Promise((resolve, reject) => {
+}) => new Promise((resolve) => {
   let iv = null;
   const subs: Rs232Sub[] = [];
+  let stopped = false;
 
   options.autoOpen = false;
   const serial = new SerialPort(port, options);
@@ -30,11 +31,31 @@ export const Rs232: TransportFn<Rs232Config, Rs232Transport> = ({
     }
   }
   const on: Rs232Transport['on'] = callback => subs.push(callback);
+  const stop: Rs232Transport['stop'] = () => {
+    stopped = true;
+    logger.log('Stopping rs232');
+    return new Promise(serial.close.bind(serial))
+  };
+  const start: Rs232Transport['start'] = async () => {
+    serial.open(e => {
+      if (e) {
+        logger.debug(`Connection attempt to ${port} failed`);
+      }
+    });
+    iv = setInterval(async () => {
+      serial.open(e => {
+        if (e) {
+          logger.debug(`Connection attempt to ${port} failed`);
+        }
+      });
+    }, 2000);
+  }
 
   const transport = {
     emit,
     on,
-    stop: () => new Promise(serial.close.bind(serial))
+    start,
+    stop
   }
 
   serial.on('data', (data: Buffer) => {
@@ -51,11 +72,17 @@ export const Rs232: TransportFn<Rs232Config, Rs232Transport> = ({
     resolve(transport)
   });
   serial.on('close', () => {
-    iv = setInterval(async () => {
-      serial.open(e => {
-        e && logger.debug(`Connection attempt to ${port} failed`);
-      });
-    }, 1000);
+    if (!stopped) {
+      start();
+    }
   });
-  serial.open(err => err && reject(err));
+
+  start();
+  
+  // serial.open(e => {
+  //   if (e) {
+  //     start();
+  //     logger.error(e);
+  //   }
+  // });
 });

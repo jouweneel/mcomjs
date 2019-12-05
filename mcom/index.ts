@@ -5,6 +5,8 @@ import { ProtocolTypes } from '../protocol/types'
 import { Transports, TransportConfigs, TransportContexts } from '../transport/types'
 import { taglogger } from '../logger'
 
+export * from './util'
+
 const logger = taglogger('MCom');
 
 export const MCom = async <P extends keyof ProtocolTypes, T extends keyof Transports> (
@@ -48,5 +50,5 @@ export const MCom = async <P extends keyof ProtocolTypes, T extends keyof Transp
     }
   };
   
-  return { emit, on, request, respond };
+  return { emit, on, request, respond, start: transport.start, stop: transport.stop };
 }

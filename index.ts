@@ -1,1 +1,1 @@
-import * as protocol from './protocol'
+export * from './mcom'
