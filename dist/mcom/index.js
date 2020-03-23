@@ -35,6 +35,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -46,6 +49,7 @@ exports.__esModule = true;
 var protocols = __importStar(require("../protocol"));
 var transports = __importStar(require("../transport"));
 var logger_1 = require("../logger");
+__export(require("./util"));
 var logger = logger_1.taglogger('MCom');
 exports.MCom = function (ptc) { return __awaiter(void 0, void 0, void 0, function () {
     var protocol, transport, emit, on, request, respond;
@@ -100,7 +104,7 @@ exports.MCom = function (ptc) { return __awaiter(void 0, void 0, void 0, functio
                         return [2 /*return*/];
                     });
                 }); };
-                return [2 /*return*/, { emit: emit, on: on, request: request, respond: respond }];
+                return [2 /*return*/, { emit: emit, on: on, request: request, respond: respond, start: transport.start, stop: transport.stop }];
         }
     });
 }); };

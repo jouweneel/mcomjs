@@ -55,9 +55,10 @@ var logger_1 = require("../../logger");
 var logger = logger_1.taglogger('transport-Rs232');
 exports.Rs232 = function (_a) {
     var port = _a.port, options = __rest(_a, ["port"]);
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve) {
         var iv = null;
         var subs = [];
+        var stopped = false;
         options.autoOpen = false;
         var serial = new serialport_1["default"](port, options);
         var transmit = function (data) { return new Promise(function (res, rej) {
@@ -75,10 +76,36 @@ exports.Rs232 = function (_a) {
             });
         }); };
         var on = function (callback) { return subs.push(callback); };
+        var stop = function () {
+            stopped = true;
+            logger.log('Stopping rs232');
+            return new Promise(serial.close.bind(serial));
+        };
+        var start = function () { return __awaiter(void 0, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                serial.open(function (e) {
+                    if (e) {
+                        logger.debug("Connection attempt to " + port + " failed");
+                    }
+                });
+                iv = setInterval(function () { return __awaiter(void 0, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        serial.open(function (e) {
+                            if (e) {
+                                logger.debug("Connection attempt to " + port + " failed");
+                            }
+                        });
+                        return [2 /*return*/];
+                    });
+                }); }, 2000);
+                return [2 /*return*/];
+            });
+        }); };
         var transport = {
             emit: emit,
             on: on,
-            stop: function () { return new Promise(serial.close.bind(serial)); }
+            start: start,
+            stop: stop
         };
         serial.on('data', function (data) {
             for (var _i = 0, subs_1 = subs; _i < subs_1.length; _i++) {
@@ -95,15 +122,16 @@ exports.Rs232 = function (_a) {
             resolve(transport);
         });
         serial.on('close', function () {
-            iv = setInterval(function () { return __awaiter(void 0, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    serial.open(function (e) {
-                        e && logger.debug("Connection attempt to " + port + " failed");
-                    });
-                    return [2 /*return*/];
-                });
-            }); }, 1000);
+            if (!stopped) {
+                start();
+            }
         });
-        serial.open(function (err) { return err && reject(err); });
+        start();
+        // serial.open(e => {
+        //   if (e) {
+        //     start();
+        //     logger.error(e);
+        //   }
+        // });
     });
 };

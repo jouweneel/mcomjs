@@ -19,7 +19,7 @@ var dbg = process.env.NODE_ENV === 'development';
 var prefix = function (tag) { return moment_1["default"]().format('YYYY-MM-DD HH:mm:ss:SSS') + " [" + tag + "]"; };
 var filelog = function (prefix, args) {
     file && fs_1.writeSync(file, prefix + " ");
-    args.map(function (arg) { return file && fs_1.writeSync(file, typeof arg === 'string' ? arg + " " : JSON.stringify(arg, null, '  ')); });
+    args.map(function (arg) { return file && fs_1.writeSync(file, JSON.stringify(arg, null, '  ')); });
     file && fs_1.writeSync(file, '\n');
 };
 var debug = function (tag) { return function () {
@@ -31,8 +31,8 @@ var debug = function (tag) { return function () {
     filelog(prefix(tag) + " (debug)", args);
 }; };
 var error = function (tag) { return function (err, fatal) {
-    console.log(colors_1["default"].red(prefix(tag)), err.message, '\n', colors_1["default"].red(err.stack));
-    filelog(prefix(tag) + " (error)", [err.message, err.stack.split('\n')[1].trim()]);
+    console.log(colors_1["default"].red(prefix(tag)), err.message, colors_1["default"].red('\n\tStack:'), err.stack);
+    filelog(prefix(tag) + " (error)", [err.message, err.stack.split('\n')]);
     fatal && process.exit(0);
 }; };
 var log = function (tag) { return function () {

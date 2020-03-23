@@ -10,16 +10,16 @@
   "dependencies": {
     "colors": "^1.4.0",
     "moment": "^2.24.0",
-    "ramda": "^0.26.1",
-    "serialport": "^8.0.5",
-    "uuid": "^3.3.3"
+    "ramda": "^0.27.0",
+    "serialport": "^8.0.7",
+    "uuid": "^7.0.2"
   },
   "devDependencies": {
-    "@types/node": "^12.12.14",
-    "@types/ramda": "^0.26.36",
-    "@types/serialport": "^7.0.4",
-    "@types/uuid": "^3.4.6",
-    "ts-node": "^8.5.4",
-    "typescript": "^3.7.3"
+    "@types/node": "^13.9.1",
+    "@types/ramda": "^0.26.44",
+    "@types/serialport": "^8.0.0",
+    "@types/uuid": "^7.0.2",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.8.3"
   }
 }
