@@ -1,22 +1,6 @@
 import { BsDataType } from './types'
 
-export interface BsSchemaEntry {
-  _id: number
-  _type: BsDataType
-  _cls?: number
-  _parent?: BsSchemaEntry
-}
-export interface BsSchema {
-  [key: string]: (BsSchemaEntry | BsSchema)
-}
-export interface BsMessage {
-  node: string[]
-  data?: any
-  length?: number
-  cls?: number
-}
 export const BsDataTypes: BsDataType[] = []
-
 BsDataTypes[0x00] = 'void'
 
 /** 1-byte types */
@@ -52,29 +36,25 @@ BsDataTypes[0x39] = 'hsv[]'
 BsDataTypes[0x40] = 'u32'
 BsDataTypes[0x41] = 'i32'
 BsDataTypes[0x42] = 'float'
-BsDataTypes[0x43] = 'date'
-BsDataTypes[0x44] = 'time'
-BsDataTypes[0x45] = 'rgbw'
+BsDataTypes[0x43] = 'rgbw'
 
 /** 4-byte array types */
 BsDataTypes[0x48] = 'u32[]'
 BsDataTypes[0x49] = 'i32[]'
 BsDataTypes[0x4a] = 'float[]'
-BsDataTypes[0x4b] = 'date[]'
-BsDataTypes[0x44] = 'time[]'
-BsDataTypes[0x4d] = 'rgbw[]'
+BsDataTypes[0x4b] = 'rgbw[]'
 
 /** 8-byte types */
 BsDataTypes[0x80] = 'u64'
 BsDataTypes[0x81] = 'i64'
-BsDataTypes[0x82] = 'double'
-BsDataTypes[0x83] = 'datetime'
+BsDataTypes[0x82] = 'timestamp'
+BsDataTypes[0x83] = 'double'
 
 /** 8-byte array types */
 BsDataTypes[0x88] = 'u64[]'
 BsDataTypes[0x89] = 'i64[]'
-BsDataTypes[0x8a] = 'double[]'
-BsDataTypes[0x8b] = 'datetime[]'
+BsDataTypes[0x8a] = 'timestamp[]'
+BsDataTypes[0x8b] = 'double[]'
 
 const bs2tMap = BsDataTypes.reduce((acc, v, k) => ({ ...acc, [v]: k }), {});
 

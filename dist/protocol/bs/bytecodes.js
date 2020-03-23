@@ -40,26 +40,22 @@ exports.BsDataTypes[0x39] = 'hsv[]';
 exports.BsDataTypes[0x40] = 'u32';
 exports.BsDataTypes[0x41] = 'i32';
 exports.BsDataTypes[0x42] = 'float';
-exports.BsDataTypes[0x43] = 'date';
-exports.BsDataTypes[0x44] = 'time';
-exports.BsDataTypes[0x45] = 'rgbw';
+exports.BsDataTypes[0x43] = 'rgbw';
 /** 4-byte array types */
 exports.BsDataTypes[0x48] = 'u32[]';
 exports.BsDataTypes[0x49] = 'i32[]';
 exports.BsDataTypes[0x4a] = 'float[]';
-exports.BsDataTypes[0x4b] = 'date[]';
-exports.BsDataTypes[0x44] = 'time[]';
-exports.BsDataTypes[0x4d] = 'rgbw[]';
+exports.BsDataTypes[0x4b] = 'rgbw[]';
 /** 8-byte types */
 exports.BsDataTypes[0x80] = 'u64';
 exports.BsDataTypes[0x81] = 'i64';
-exports.BsDataTypes[0x82] = 'double';
-exports.BsDataTypes[0x83] = 'datetime';
+exports.BsDataTypes[0x82] = 'timestamp';
+exports.BsDataTypes[0x83] = 'double';
 /** 8-byte array types */
 exports.BsDataTypes[0x88] = 'u64[]';
 exports.BsDataTypes[0x89] = 'i64[]';
-exports.BsDataTypes[0x8a] = 'double[]';
-exports.BsDataTypes[0x8b] = 'datetime[]';
+exports.BsDataTypes[0x8a] = 'timestamp[]';
+exports.BsDataTypes[0x8b] = 'double[]';
 var bs2tMap = exports.BsDataTypes.reduce(function (acc, v, k) {
     var _a;
     return (__assign(__assign({}, acc), (_a = {}, _a[v] = k, _a)));

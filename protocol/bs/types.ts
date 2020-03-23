@@ -20,13 +20,28 @@ export type BsDataType =
   'rgb[]' | 'hsv[]' |
 
 /** 4-byte unit types */
-  'u32' | 'i32' | 'float' | 'date' | 'time' | 'rgbw' |
+  'u32' | 'i32' | 'float' | 'rgbw' |
 
 /** 4-byte unit array types */
-  'u32[]' | 'i32[]' | 'float[]' | 'date[]' | 'time[]' | 'rgbw[]' |
+  'u32[]' | 'i32[]' | 'float[]' | 'rgbw[]' |
 
 /** 8-byte unit types */
-  'u64' | 'i64' | 'double' | 'datetime' |
+  'u64' | 'i64' | 'timestamp' | 'double' |
 
 /** 8-byte unit array types */
-  'u64[]' | 'i64[]' | 'double[]' | 'datetime[]'
+  'u64[]' | 'i64[]' | 'timestamp[]' | 'double[]'
+
+export interface BsSchemaEntry {
+  _id: number
+  _type: BsDataType
+  _cls?: number
+  _length?: number
+}
+export interface BsSchema {
+  [key: string]: (BsSchemaEntry | BsSchema)
+}
+export interface BsMessage {
+  path: string[]
+  node?: BsSchemaEntry
+  data?: any
+}
