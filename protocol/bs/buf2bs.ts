@@ -16,7 +16,7 @@ const buf2data = (buf: Buffer, node: BsSchemaEntry): any => {
     return null;
   }
 
-  const type = node._type;
+  const type = node.type;
   const typeCode = bs2t(type);
 
   if (typeCode < 0x10) {
@@ -80,7 +80,7 @@ export const buf2bs = (schema: BsSchema) => (buf: Buffer): BsMessage => {
   const nodePath: string[] = [];
   for (let i = 0; i < nodeBytes.length; i++) {
     mapObjIndexed((entry: BsSchemaEntry, key) => {
-      if (entry._id == nodeBytes[i]) {
+      if (entry.id == nodeBytes[i]) {
         node = entry;
         nodePath.push(key);
       }

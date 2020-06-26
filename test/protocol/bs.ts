@@ -3,19 +3,19 @@ import { BsMessage, BsSchema } from '../../protocol/types'
 
 const schema : BsSchema = {
   strip: {
-    _id: 0x00, _type: 'custom', _cls: 0xa0,
+    id: 0x00, type: 'custom', group: 0xa0,
 
-    power: { _id: 0x00, _type: 'bool', _cls: 0x10 },
-    brightness: { _id: 0x01, _type: 'u8', _cls: 0x10 },
-    color: { _id: 0x02, _type: 'hsv', _cls: 0x10 },
-    colors: { _id: 0x03, _type: 'rgb[]', _cls: 0x10, _length: 2 }
+    power: { id: 0x00, type: 'bool', group: 0x10 },
+    brightness: { id: 0x01, type: 'u8', group: 0x10 },
+    color: { id: 0x02, type: 'hsv', group: 0x10 },
+    colors: { id: 0x03, type: 'rgb[]', group: 0x10, length: 2 }
   },
   strip_2: {
-    _id: 0x01, _type: 'custom', _cls: 0xa0,
+    id: 0x01, type: 'custom', group: 0xa0,
 
-    power: { _id: 0x00, _type: 'bool', _cls: 0x10 },
-    brightness: { _id: 0x01, _type: 'u8', _cls: 0x10 },
-    color: { _id: 0x02, _type: 'hsv', _cls: 0x10 }
+    power: { id: 0x00, type: 'bool', group: 0x10 },
+    brightness: { id: 0x01, type: 'u8', group: 0x10 },
+    color: { id: 0x02, type: 'hsv', group: 0x10 }
   }
 }
 

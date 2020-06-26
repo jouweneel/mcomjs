@@ -1,7 +1,7 @@
 {
   "name": "mcomjs",
   "version": "0.0.1",
-  "main": "dist/index.js",
+  "main": "index.ts",
   "author": "J. Ouweneel",
   "license": "MIT",
   "scripts": {
@@ -9,17 +9,17 @@
   },
   "dependencies": {
     "colors": "^1.4.0",
-    "moment": "^2.24.0",
+    "moment": "^2.27.0",
     "ramda": "^0.27.0",
-    "serialport": "^8.0.7",
-    "uuid": "^7.0.2"
+    "serialport": "^9.0.0",
+    "uuid": "^8.2.0"
   },
   "devDependencies": {
-    "@types/node": "^13.9.3",
-    "@types/ramda": "^0.27.0",
-    "@types/serialport": "^8.0.0",
-    "@types/uuid": "^7.0.2",
-    "ts-node": "^8.8.1",
-    "typescript": "^3.8.3"
+    "@types/node": "^14.0.14",
+    "@types/ramda": "^0.27.6",
+    "@types/serialport": "^8.0.1",
+    "@types/uuid": "^8.0.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5"
   }
 }

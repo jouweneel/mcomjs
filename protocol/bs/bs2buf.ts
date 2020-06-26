@@ -81,7 +81,7 @@ export const bs2buf = (schema: BsSchema) => (msg: BsMessage): Buffer => {
   if (!node) {
     return null;
   }
-  const bsType = bs2t(node._type);
+  const bsType = bs2t(node.type);
   const isArray = (bsType & 0x08) == 0x08;
   const dataLength = isArray ? (msg.data as any[]).length : 1;
   const headerSize = 2 + msg.path.length + (isArray ? 2 : 0);
@@ -91,7 +91,7 @@ export const bs2buf = (schema: BsSchema) => (msg: BsMessage): Buffer => {
   header.writeUInt8(bsType, ptr);
   ptr++;
 
-  header.writeUInt8(node._cls, ptr);
+  header.writeUInt8(node.group, ptr);
   ptr++;
 
   if (isArray) {
@@ -101,8 +101,8 @@ export const bs2buf = (schema: BsSchema) => (msg: BsMessage): Buffer => {
 
   for (let i = 0; i < msg.path.length; i++) {
     const _node = path<BsSchemaEntry>(msg.path.slice(0, i + 1), schema);
-    header.writeUInt8(_node._id, ptr + i);
+    header.writeUInt8(_node.id, ptr + i);
   }
 
-  return Buffer.concat([ header, data2buf(msg.data, node._type, bsType) ]);
+  return Buffer.concat([ header, data2buf(msg.data, node.type, bsType) ]);
 }

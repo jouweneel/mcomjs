@@ -13,7 +13,7 @@ var buf2data = function (buf, node) {
     if (!buf.length) {
         return null;
     }
-    var type = node._type;
+    var type = node.type;
     var typeCode = bytecodes_1.bs2t(type);
     if (typeCode < 0x10) {
         return buf;
@@ -75,7 +75,7 @@ exports.buf2bs = function (schema) { return function (buf) {
     var nodePath = [];
     var _loop_1 = function (i) {
         ramda_1.mapObjIndexed(function (entry, key) {
-            if (entry._id == nodeBytes[i]) {
+            if (entry.id == nodeBytes[i]) {
                 node = entry;
                 nodePath.push(key);
             }

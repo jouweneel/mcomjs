@@ -32,10 +32,10 @@ export type BsDataType =
   'u64[]' | 'i64[]' | 'timestamp[]' | 'double[]'
 
 export interface BsSchemaEntry {
-  _id: number
-  _type: BsDataType
-  _cls?: number
-  _length?: number
+  id: number
+  group?: number
+  type: BsDataType
+  length?: number
 }
 export interface BsSchema {
   [key: string]: (BsSchemaEntry | BsSchema)

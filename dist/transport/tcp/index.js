@@ -73,10 +73,6 @@ var TcpClient = function (_a) {
         var on = function (callback) {
             socket.on('data', function (data) { return callback(data, ctx); });
         };
-        var stop = function () { return new Promise(function (res) {
-            iv = 1;
-            socket.end(res);
-        }); };
         socket.on('error', reject);
         socket.on('end', function () {
             if (iv === null) {
@@ -93,8 +89,7 @@ var TcpClient = function (_a) {
             logger.log("Connected to " + ip + ":" + port);
             resolve({
                 emit: emit,
-                on: on,
-                stop: stop
+                on: on
             });
         });
     });
@@ -103,6 +98,7 @@ var TcpServer = function (_a) {
     var ip = _a.ip, port = _a.port;
     return new Promise(function (resolve, reject) {
         var connections = [];
+        var subs = [];
         var getConnection = function (_a) {
             var ip = _a.ip, port = _a.port;
             return ramda_1.find(function (connection) { return (connection.ip === ip && connection.port === port); }, connections);
@@ -118,18 +114,31 @@ var TcpServer = function (_a) {
                 return [2 /*return*/, write(connection.socket, data)];
             });
         }); };
+        var on = function (cb) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
+            return [2 /*return*/, subs.push(cb)];
+        }); }); };
         var server = net_1.createServer(function (socket) {
-            var ctx = { ip: socket.remoteAddress, port: socket.remotePort, socket: socket };
-            var existing = getConnection(ctx);
-            if (existing) {
-                connections.splice(connections.indexOf(existing), 1);
+            var existing = getConnection({ ip: socket.remoteAddress, port: socket.remotePort });
+            var ctx = existing ? existing : { ip: socket.remoteAddress, port: socket.remotePort, socket: socket };
+            if (!existing) {
+                connections.push(ctx);
             }
-            connections.push(ctx);
+            socket.on('data', function (data) {
+                for (var _i = 0, subs_1 = subs; _i < subs_1.length; _i++) {
+                    var sub = subs_1[_i];
+                    sub(data, ctx);
+                }
+            });
+            socket.on('close', function () {
+                connections.splice(connections.indexOf(existing || ctx), 1);
+            });
         });
-        server.listen(port, ip);
+        server.on('error', reject);
         server.on('connect', function () { return resolve({
-            emit: emit
+            emit: emit,
+            on: on
         }); });
+        server.listen(port, ip);
     });
 };
 exports.Tcp = function (cfg) { return __awaiter(void 0, void 0, void 0, function () {

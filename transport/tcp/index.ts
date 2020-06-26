@@ -2,10 +2,11 @@ import { createServer, connect, Socket } from 'net'
 import { find } from 'ramda'
 
 import { TcpConfig, TcpContext } from './types'
-import { Transport, TransportFn } from '../types_private'
+import { Sub, Transport, TransportFn } from '../types_private'
 import { taglogger } from '../../logger'
 
 type TcpTransport = Transport<TcpContext>
+type TcpSub = Sub<TcpContext>
 
 const logger = taglogger('transport-tcp');
 
@@ -21,13 +22,13 @@ const write = (socket: Socket, data: Buffer): Promise<number> => new Promise((re
 const TcpClient: TransportFn<TcpConfig, TcpTransport> = ({
   ip, port
 }) => new Promise((resolve, reject) => {
-  const socket = connect(port, ip);
+  const socket = new Socket();
   const ctx = { ip, port, socket };
   let iv: any = null;
   
   const emit: TcpTransport['emit'] = async (data, {}) => {
     try {
-      return await write(socket, data);
+      return write(socket, data);
     } catch(e) {
       logger.error(e);
     }
@@ -36,11 +37,6 @@ const TcpClient: TransportFn<TcpConfig, TcpTransport> = ({
   const on: TcpTransport['on'] = callback => {
     socket.on('data', data => callback(data, ctx));
   }
-
-  const stop: TcpTransport['stop'] = () => new Promise(res => {
-    iv = 1;
-    socket.end(res);
-  });
 
   socket.on('error', reject);
   socket.on('end', () => {
@@ -58,41 +54,52 @@ const TcpClient: TransportFn<TcpConfig, TcpTransport> = ({
     logger.log(`Connected to ${ip}:${port}`);
     resolve({
       emit,
-      on,
-      stop
+      on
     });
   });
+  socket.connect(port, ip);
 });
 
 const TcpServer: TransportFn<TcpConfig, TcpTransport> = ({
   ip, port
 }) => new Promise((resolve, reject) => {
   const connections: TcpContext[] = [];
-  const getConnection = ({ ip, port }: TcpContext) => find(
+  const subs: TcpSub[] = [];
+
+  const getConnection = ({ ip, port }: Partial<TcpContext>) => find(
     connection => (connection.ip === ip && connection.port === port)
   , connections);
 
-  const emit: TcpTransport['emit'] = async (data, ctx) => {
-    const connection = getConnection(ctx);
-    if (!connection) {
-      logger.error(new Error(`Socket ${ctx.ip}:${ctx.port} not found`));
-      return 0;
-    }
-    return write(connection.socket, data);
-  }
+  const emit: TcpTransport['emit'] = async (data, ctx) => write(ctx.socket, data);
+
+  const on: TcpTransport['on'] = async (cb) => subs.push(cb);
 
   const server = createServer(socket => {
-    const ctx: TcpContext = { ip: socket.remoteAddress, port: socket.remotePort, socket };
-    const existing = getConnection(ctx);
-    if (existing) {
-      connections.splice(connections.indexOf(existing), 1);
+    const existing = getConnection({ ip: socket.remoteAddress, port: socket.remotePort });
+    const ctx = existing ? existing : { ip: socket.remoteAddress, port: socket.remotePort, socket };
+    if (!existing) {
+      connections.push(ctx);
     }
-    connections.push(ctx);
+    socket.on('data', data => {
+      for (const sub of subs) {
+        sub(data, ctx);
+      }
+    });
+    socket.on('close', () => {
+      logger.debug(`Socket ${ctx.ip} disconnected`);
+      connections.splice(connections.indexOf(ctx), 1);
+    });
   });
-  server.listen(port, ip);
-  server.on('connect', () => resolve({
-    emit
-  }));
+
+  server.on('error', reject);
+
+  server.listen(port, ip, () => {
+    logger.debug(`server running on ${ip || ''}:${port}`);
+    resolve({
+      emit,
+      on
+    });
+  });
 });
 
 export const Tcp: TransportFn<TcpConfig, TcpTransport> = async (cfg) => {

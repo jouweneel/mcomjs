@@ -1,6 +1,8 @@
 import { BM } from './bm/types'
+import { EISCPMessage } from './eiscp/types'
 export * from './bm/types'
 export * from './bs/types'
+export * from './eiscp/types'
 
 export interface Protocol<T> {
   decode: (buf: Buffer) => T
@@ -11,4 +13,5 @@ export interface Protocol<T> {
 export type ProtocolTypes = {
   Bm: BM[]
   Buf: Buffer
+  EISCP: EISCPMessage
 }

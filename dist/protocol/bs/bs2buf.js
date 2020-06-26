@@ -79,7 +79,7 @@ exports.bs2buf = function (schema) { return function (msg) {
     if (!node) {
         return null;
     }
-    var bsType = bytecodes_1.bs2t(node._type);
+    var bsType = bytecodes_1.bs2t(node.type);
     var isArray = (bsType & 0x08) == 0x08;
     var dataLength = isArray ? msg.data.length : 1;
     var headerSize = 2 + msg.path.length + (isArray ? 2 : 0);
@@ -87,7 +87,7 @@ exports.bs2buf = function (schema) { return function (msg) {
     var ptr = 0;
     header.writeUInt8(bsType, ptr);
     ptr++;
-    header.writeUInt8(node._cls, ptr);
+    header.writeUInt8(node.group, ptr);
     ptr++;
     if (isArray) {
         header.writeUInt16LE(dataLength, ptr);
@@ -95,7 +95,7 @@ exports.bs2buf = function (schema) { return function (msg) {
     }
     for (var i = 0; i < msg.path.length; i++) {
         var _node = ramda_1.path(msg.path.slice(0, i + 1), schema);
-        header.writeUInt8(_node._id, ptr + i);
+        header.writeUInt8(_node.id, ptr + i);
     }
-    return Buffer.concat([header, data2buf(msg.data, node._type, bsType)]);
+    return Buffer.concat([header, data2buf(msg.data, node.type, bsType)]);
 }; };
