@@ -1,4 +1,3 @@
-export * from './bm'
-export * from './bs'
-export * from './buf'
-export * from './eiscp'
+export { Bs } from './bs'
+export { Buf } from './buf'
+export { EISCP } from './eiscp'

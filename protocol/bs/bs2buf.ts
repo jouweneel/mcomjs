@@ -1,7 +1,5 @@
-import { path } from 'ramda'
-
 import { bs2t } from './bytecodes'
-import { BsMessage, BsSchema, BsSchemaEntry, BsDataType } from './types'
+import { DataType, McomProtocol } from '../../types'
 
 const bufWrite = (data: number, method: string, bytes: number) => {
   const buf = Buffer.alloc(bytes);
@@ -11,12 +9,15 @@ const bufWrite = (data: number, method: string, bytes: number) => {
 const bufWriteArray = (data: number[], method: string, bytes: number) => {
   const buf = Buffer.alloc(bytes * data.length);
   for (let i = 0; i < data.length; i++) {
-    buf[method](data[i]);
+    buf[method](data[i], i * bytes);
   }
   return buf;
 }
 
-const data2buf = (data: any | any[], type: BsDataType, typeCode: number): Buffer => {
+const data2buf = (
+  data: any | any[],
+  type: DataType
+): Buffer => {
   /** No data */
   if (!data) {
     return Buffer.from([]);
@@ -56,7 +57,7 @@ const data2buf = (data: any | any[], type: BsDataType, typeCode: number): Buffer
       for (let idx = 0; idx < data.length; idx++) {
         const elm = data[idx];
         for (let i = 0; i < elm.length; i++) {
-          buf.writeUInt8(elm[i], (elm.length * idx) + i);
+          buf.writeUInt8(elm[i], i + idx * elm.length);
         }
       }
       return buf;
@@ -65,44 +66,32 @@ const data2buf = (data: any | any[], type: BsDataType, typeCode: number): Buffer
     case 'json': return Buffer.from(JSON.stringify(data));
 
     default: {
-      if (typeCode >= 0x10) {
-        console.log(`Type "${type}" not implemented, defaulting to Buffer.from!`);
-      }
+      console.log(`Type "${type}" not implemented, defaulting to Buffer.from!`);
       return Buffer.from(data);
     }
   }
 }
 
 /**
- * | TYPE | CLS | (optional) LENGTH | [...PATH] | DATA |
-*/
-export const bs2buf = (schema: BsSchema) => (msg: BsMessage): Buffer => {
-  const node = path<BsSchemaEntry>(msg.path, schema);
-  if (!node) {
-    return null;
-  }
-  const bsType = bs2t(node.type);
-  const isArray = (bsType & 0x08) == 0x08;
-  const dataLength = isArray ? (msg.data as any[]).length : 1;
-  const headerSize = 2 + msg.path.length + (isArray ? 2 : 0);
+ * | CMD | TYPE | LEN? | DATA? |
+ */
+export const bs2buf: McomProtocol['encode'] = msgs => {
+  const bufs = msgs.map(({ cmd, data, type }) => {
+    const bsType = bs2t(type);
+    const isArray = (bsType & 0x08) == 0x08;
+    const dataLength = isArray ? type === 'json' ? JSON.stringify(data).length : (data as any[]).length : 1;
+    const headerSize = isArray ? 4 : 2;
+  
+    const header = Buffer.alloc(headerSize);
+    header.writeUInt8(cmd as number, 0);
+    header.writeUInt8(bsType, 1);
+    
+    if (isArray) {
+      header.writeUInt16LE(dataLength, 2);
+    }
 
-  const header = Buffer.alloc(headerSize);
-  let ptr = 0;
-  header.writeUInt8(bsType, ptr);
-  ptr++;
+    return Buffer.concat([ header, data2buf(data || [], type) ]);
+  });
 
-  header.writeUInt8(node.group, ptr);
-  ptr++;
-
-  if (isArray) {
-    header.writeUInt16LE(dataLength, ptr);
-    ptr += 2;
-  }
-
-  for (let i = 0; i < msg.path.length; i++) {
-    const _node = path<BsSchemaEntry>(msg.path.slice(0, i + 1), schema);
-    header.writeUInt8(_node.id, ptr + i);
-  }
-
-  return Buffer.concat([ header, data2buf(msg.data, node.type, bsType) ]);
+  return Buffer.concat(bufs);
 }

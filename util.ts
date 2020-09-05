@@ -1,4 +1,5 @@
 import { Callbacks, Emitter } from './types'
+import { keys } from 'ramda';
 
 export const emitter = (): Emitter => {
   const callbacks: Callbacks = {};
@@ -19,6 +20,12 @@ export const emitter = (): Emitter => {
     callbacks[event].splice(idx, 1);
   }
 
+  const offAll: Emitter['offAll'] = () => {
+    for (const event of keys(callbacks)) {
+      delete callbacks[event];
+    }
+  }
+
   const stop: Emitter['stop'] = (event) => {
     delete callbacks[event];
   }
@@ -27,6 +34,7 @@ export const emitter = (): Emitter => {
     emit,
     on,
     off,
+    offAll,
     stop
   }
 }

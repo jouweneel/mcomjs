@@ -30,18 +30,3 @@ export type BsDataType =
 
 /** 8-byte unit array types */
   'u64[]' | 'i64[]' | 'timestamp[]' | 'double[]'
-
-export interface BsSchemaEntry {
-  id: number
-  group?: number
-  type: BsDataType
-  length?: number
-}
-export interface BsSchema {
-  [key: string]: (BsSchemaEntry | BsSchema)
-}
-export interface BsMessage {
-  path: string[]
-  node?: BsSchemaEntry
-  data?: any
-}
