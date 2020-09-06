@@ -8,11 +8,13 @@ const test = async () => {
     // On incoming data
   udp.on((data, { ip, port }) => {
     console.log(`${ip}:${port} sent`, ...data);
-    data[0].data = "pong!";
 
     setTimeout(() => {
-      udp.emit(data, { ip, port });
-    }, 1000);
+      udp.emit([
+        { cmd: 1, type: 'i16[]', data: [-100, 500] },
+        { cmd: 0, type: 'hsv', data: [ 34, 255, 100 ] }
+      ], { ip, port });
+    }, 1000)
   });
 
   /** UDP emit */

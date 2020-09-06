@@ -28,8 +28,10 @@ const readBufData = (
     case 'float': return buf.readFloatLE(ptr);
     case 'double': return buf.readDoubleLE(ptr);
 
-    case 'u8[]': case 'bool[]': case 'rgb': case 'hsv': case 'rgbw':
-      return bufReadArray(buf, 'readUInt8', ptr, len, 1);
+    case 'u8[]': case 'bool[]': case 'rgbw': return bufReadArray(buf, 'readUInt8', ptr, len, 1);
+    case 'rgb': case 'hsv': return bufReadArray(buf, 'readUInt8', ptr, 3, 1);
+    case 'rgbw': return bufReadArray(buf, 'readUInt8', ptr, 4, 1);
+
     case 'u16[]': return bufReadArray(buf, 'readUInt16LE', ptr, len, 2);
     case 'u32[]': return bufReadArray(buf, 'readUInt32LE', ptr, len, 4);
     case 'u64[]': case 'timestamp[]': return bufReadArray(buf, 'readBigUInt64LE', ptr, len, 8);
