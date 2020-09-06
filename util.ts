@@ -1,5 +1,5 @@
 import { Callbacks, Emitter } from './types'
-import { keys } from 'ramda';
+import { keys } from 'ramda'
 
 export const emitter = (): Emitter => {
   const callbacks: Callbacks = {};

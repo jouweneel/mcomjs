@@ -16,21 +16,23 @@ export const MCom = async <T extends keyof Transports> (
   const protocol: McomProtocol = protocols[ptc.protocol];
   const transport = await (transports as Transports)[ptc.transport](ptc.config as any);
 
-  type Context = TransportContexts[T]
+  type Context = TransportContexts[T];
 
   const emit = async (msg: McomMessage | McomMessage[], ctx?: Context) => {
     if (!transport.emit) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'emit'`));
     } else {
-      return transport.emit(protocol.encode(toArray(msg)), ctx);
+      return await transport.emit(protocol.encode(toArray(msg)), ctx);
     }
   };
 
   const on = async (callback: (msgs: McomMessage[], ctx?: Context) => void) => {
     if (!transport.on) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'on'`));
-    } else {
-      return transport.on((data, ctx) => callback(protocol.decode(data) as any, ctx as any));
+    } {
+      transport.on((data, ctx) => {
+        callback(protocol.decode(data) as any, ctx as any);
+      });
     }
   };
 
@@ -38,7 +40,7 @@ export const MCom = async <T extends keyof Transports> (
     if (!transport.request) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'request'`));
     } else {
-      return transport.request(protocol.encode(toArray(msg)), ctx);
+      return await transport.request(protocol.encode(toArray(msg)), ctx);
     }
   };
 
@@ -46,7 +48,7 @@ export const MCom = async <T extends keyof Transports> (
     if (!transport.respond) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'respond'`));
     } else {
-      return transport.respond((data, ctx) => callback(protocol.decode(data) as any, ctx as any) as any);
+      transport.respond((data, ctx) => callback(protocol.decode(data) as any, ctx as any) as any);
     }
   };
   

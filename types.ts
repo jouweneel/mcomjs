@@ -42,6 +42,23 @@ export interface McomProtocol {
   encode: (msg: McomMessage[]) => Buffer
 }
 
+interface State {
+  key: string
+  value?: any
+  type?: DataType
+  ro?: boolean
+}
+
+export interface DeviceData {
+  id: string
+  name?: string
+  state: State[]
+  protocol: string
+  transport: string
+  config: Record<string,any>
+  ctx?: Record<string,any>
+}
+
 type CallbackFn = (data?: any) => void
 export interface Callbacks {[event: string]: CallbackFn[] }
 

@@ -21,9 +21,9 @@ const readBufData = (
     case 'u64': return buf.readBigUInt64LE(ptr);
 
     case 'i8': return buf.readInt8(ptr);
-    case 'u16': return buf.readInt16LE(ptr);
-    case 'u32': return buf.readInt32LE(ptr);
-    case 'u64': case 'timestamp': return buf.readBigInt64LE(ptr);
+    case 'i16': return buf.readInt16LE(ptr);
+    case 'i32': return buf.readInt32LE(ptr);
+    case 'i64': case 'timestamp': return buf.readBigInt64LE(ptr);
 
     case 'float': return buf.readFloatLE(ptr);
     case 'double': return buf.readDoubleLE(ptr);
