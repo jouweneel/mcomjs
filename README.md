@@ -1,58 +1,56 @@
-# McomJS - universal eMbedded Communication library
-McomJS is the Node.JS implementation of my attempt to create one single software platform that connects any two devices, and the result of my decade of experimenting with home automation.
+# McomJS - eMbedded Communication library
+McomJS is the Node.JS implementation of my attempt to create one single software library that allows communication between any two devices.
 
 To achieve this goal, Mcom combines two main parts in communication: the `Transport` and `Protocol` layers, wrapped in an API that is as stupidly simple as possible, only needing one simple (database-friendly!) object to configure and instantiate the communication channel.
 
-The setup is simple: a `Transport` is simply a configurable module that either exposes `emit` / `on` functions (PubSub/EventEmitter), `request` / `respond` functions (wip - not sure if this is usable), or both - which take a Buffer and a transport-specific context object (for stuff like target IP, COM port, ...) to put data on some line, or receive from it. Next, a `Protocol` is a module that takes a self-defined data format, containing an `encode` function to convert this data format to a Buffer, and a `decode` function to convert a Buffer back to its own format.
+The setup is simple: a `Transport` is simply a configurable module that either exposes `emit` / `on` functions (PubSub/EventEmitter), `request` / `respond` functions (wip - not sure if this is usable), or both - which take a Buffer and a transport-specific context object (for stuff like target IP, COM port, ...) to put data on some line, or receive from it. Next, a `Protocol` is a module that takes a fixed data format, containing an `encode` and `decode` function to convert between readable javascript Objects and transmittable Buffers.
 
-The only exported `MCom` function, finally, allows you to create an instance of a `Transport`/`Protocol` pair with the transport configuration, giving you one neat interface to read from or write to your setup of choice - nicely typed so that you'll know what to pass for every instance :).
-
-# TL;DR - show me the code!
+The fixed non-encoded data format (typed `McomMessage | McomMessage[]`) contains the following:
 ```ts
-const udp_buf = await MCom({
-  protocol: 'Buf',
-  transport: 'Udp',
-  config: { port: 2222 }
-});
-
-const com_buf = await MCom({
-  protocol: 'Bm',
-  transport: 'Rs232',
-  config: { port: '/dev/ttyUSB0', baudRate: 115200 }
-});
-
-udp_buf.on((data, { ip, port }) => console.log(data.toString()));
-com_buf.on(data => );
-
-udp_buf.emit(Buffer.from([1, 2, 3]), { ip: 'localhost', port: 2222 });
-com_buf.emit([
-  { key: '8-bit integer', type: 'i8', data: -2 },
-  { key: 'double array', type: 'double[]', data: [4.15, 5.16] }
-]);
+interface McomMessage {
+  data: any         // The data to be converted into a Buffer by the Protocol
+  cmd?: number      // Optional, meant to select the action to take on the receiving side
+  type?: DataType   // Optional, meant to be used by protocols that need it to build a correct data buffer
 ```
+The reason for this layout is the ability to encode multiple cmd/data pairs into a single buffer, meaning that multiple payloads targeted at different pieces of logic on the receiving end can be encoded into a single message. Protocols that don't need al this fancyness can simply take the `{ data }` property of the first `McomMessage[]` entry and convert that to a Buffer.
 
-Corresponding output (I didn't actually have a COM-port device connected xD - but the `udp_buf` data was encoded to a buffer, sent to localhost, and parsed back to this result with the ByteMap protocol included in this package):
+The only exported `MCom` function, finally, allows you to create an instance of a `Transport`/`Protocol` pair with the transport configuration, giving you one neat interface to read from or write to your setup of choice.
 
-```
-2019-10-17 02:36:39:572 [transport-Rs232] Connected to /dev/ttyUSB0
-2019-10-17 02:36:39:581 [transport-Udp] Listening on port 2222
-2019-10-17 02:36:39:586 [udp_buf] 127.0.0.1:2222 sent:
- [
-  {
-    "cls": "sys",
-    "key": "8-bit int",
-    "type": "i8",
-    "data": -2
-  },
-  {
-    "cls": "sys",
-    "key": "double array",
-    "type": "double[]",
-    "data": {
-      "0": 3.1415,
-      "1": 800000
+# TL;DR - show me some code!
+```ts
+const BufTcp = async () => {
+  // TCP server instance
+  const srv = await MCom({
+    protocol: 'Buf', transport: 'Tcp', config: { mode: 'server', port: 2222 }
+  });
+
+  srv.on('connect', ctx => console.log(`${ctx.ip}:${ctx.port} connected`));
+  srv.on('data', (msgs, { ip, port }) => {
+    console.log(`Received`, msgs[0].data.toString(), 'from ${ip}:${port}');
+    srv.emit({ data: Buffer.from('response') }, { ip, port });
+  });
+  srv.on('disconnect', async ctx => {
+    if (ctx) {
+      // if the server calls back a disconnect WITH context, the context is that of a disconnected socket
+      console.log(`${ctx.ip}:${ctx.port} disconnected`);
+      await srv.disconnect();
+      console.log('server stopped');
+    } else {
+      // if the server calls back WITHOUT context, the server itself disconnected
+      console.log('server disconnected');
     }
-  }
-]
+  });
 
+  // TCP client instance
+  const cli = await MCom({
+    protocol: 'Buf', transport: 'Tcp', config: { mode: 'client', port: 2222 }
+  });
+
+  cli.on('data', msgs => {
+    console.log('cli got back', msgs[0].data.toString());
+    cli.disconnect();
+  });
+
+  cli.emit({ data: Buffer.from('cli1') });
+}
 ```
