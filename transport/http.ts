@@ -1,27 +1,31 @@
-import { createServer, request as httpRequest } from 'http'
+import { createServer, request as httpRequest, RequestOptions } from 'http'
 
-import { HttpConfig, HttpContext } from './types'
-import { TransportFn, Transport } from '../types_private'
-import { taglogger } from '../../logger'
+import { Transport, TransportFn } from './types'
+import { taglogger } from '../logger'
 
-type HttpTransport = Transport<HttpContext>
+interface HttpConfig {
+  host?: string
+  port: number
+}
+
+type HttpContext = RequestOptions
 
 const logger = taglogger('transport-http');
 
-export const Http: TransportFn<HttpConfig, HttpTransport> = ({
+export const Http: TransportFn<HttpConfig, HttpContext> = ({
   host, port
-}) => new Promise((resolve, reject) => {
-  let responder: (data: Buffer, ctx: HttpContext) => Buffer = null;
+}) => new Promise(resolve => {
+  let responder: (data: Buffer, ctx: HttpContext) => Promise<Buffer> = null;
 
-  const respond: HttpTransport['respond'] = (callback) => {
+  const respond: Transport<HttpContext>['respond'] = callback => {
     if (responder) {
-      logger.error(new Error(`Responder already set`));
+      throw new Error(`[http] Responder can only be set once`);
     }
     responder = callback;
   }
 
   const server = createServer((req, res) => {
-    const data: Buffer[] = [];
+    let data: Buffer[] = [];
     req.on('data', chunk => data.push(chunk));
     req.on('end', () => {
       const buf = Buffer.concat(data);
@@ -30,10 +34,11 @@ export const Http: TransportFn<HttpConfig, HttpTransport> = ({
         e && logger.error(e);
         res.end();
       });
+      data = [];
     });
   });
 
-  const request: HttpTransport['request'] = (data, ctx = {}) => new Promise(rresolve => {
+  const request: Transport<HttpContext>['request'] = (data, ctx = {}) => new Promise(rresolve => {
     ctx.method = 'POST';
     ctx.port = ctx.port || port;
     const req = httpRequest(ctx, res => {

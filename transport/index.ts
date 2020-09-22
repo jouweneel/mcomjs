@@ -1,4 +1,5 @@
 export * from './http'
+export * from './midi'
 export * from './rs232'
 export * from './tcp'
 export * from './udp'

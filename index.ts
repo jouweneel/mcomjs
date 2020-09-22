@@ -2,23 +2,20 @@ import * as protocols from './protocol'
 import * as transports from './transport'
 
 import { taglogger } from './logger'
-import { Transports, TransportConfigs, TransportContexts } from './transport/types'
 import { McomMessage, McomProtocol } from './types'
-import { McomProtocolName } from './protocol/types'
+import { TransportEvent } from './transport/types'
 export * from './util'
 
 const logger = taglogger('MCom');
 const toArray = (a: McomMessage | McomMessage[]): McomMessage[] => Array.isArray(a) ? a : [ a ];
 
-export const MCom = async <T extends keyof Transports> (
-  ptc: { protocol: McomProtocolName, transport: T, config: TransportConfigs[T] }
+export const MCom = async (
+  ptc: { protocol: keyof (typeof protocols), transport: keyof (typeof transports), config: Record<string,any> }
 ) => {
   const protocol: McomProtocol = protocols[ptc.protocol];
-  const transport = await (transports as Transports)[ptc.transport](ptc.config as any);
+  const transport = await (transports)[ptc.transport](ptc.config as any);
 
-  type Context = TransportContexts[T];
-
-  const emit = async (msg: McomMessage | McomMessage[], ctx?: Context) => {
+  const emit = async (msg: McomMessage | McomMessage[], ctx?: Record<string,any>) => {
     if (!transport.emit) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'emit'`));
     } else {
@@ -26,17 +23,24 @@ export const MCom = async <T extends keyof Transports> (
     }
   };
 
-  const on = async (callback: (msgs: McomMessage[], ctx?: Context) => void) => {
+  const on = async <E extends TransportEvent> (
+    event: E,
+    callback: E extends 'data' ? (msgs: McomMessage[], ctx?: Record<string,any>) => void : (ctx?: Record<string,any>) => void
+  ) => {
     if (!transport.on) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'on'`));
-    } {
-      transport.on((data, ctx) => {
-        callback(protocol.decode(data) as any, ctx as any);
+    } 
+    
+    if (event === 'data') {
+      transport.on('data', (data, ctx) => {
+        callback(protocol.decode(data), ctx)
       });
+    } else {
+      transport.on(event, callback as any);
     }
   };
 
-  const request = async (msg: McomMessage | McomMessage[], ctx?: Context) => {
+  const request = async (msg: McomMessage | McomMessage[], ctx?: Record<string,any>) => {
     if (!transport.request) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'request'`));
     } else {
@@ -44,7 +48,7 @@ export const MCom = async <T extends keyof Transports> (
     }
   };
 
-  const respond = async (callback: (msgs: McomMessage[], ctx?: Context) => void) => {
+  const respond = async (callback: (msgs: McomMessage[], ctx?: Record<string,any>) => void) => {
     if (!transport.respond) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'respond'`));
     } else {
@@ -52,5 +56,5 @@ export const MCom = async <T extends keyof Transports> (
     }
   };
   
-  return { emit, on, request, respond, start: transport.start, stop: transport.stop };
+  return { emit, on, request, respond, connect: transport.connect, disconnect: transport.disconnect, list: transport.list };
 }

@@ -59,11 +59,11 @@ export interface DeviceData {
   ctx?: Record<string,any>
 }
 
-type CallbackFn = (data?: any) => void
+type CallbackFn = (...args: any) => void
 export interface Callbacks {[event: string]: CallbackFn[] }
 
 export interface Emitter {
-  emit: (event: string, data?: any) => void
+  emit: (event: string, ...args: any) => void
   on: (event: string, cb: CallbackFn) => void
   off: (event: string, cb: CallbackFn) => void
   offAll: () => void

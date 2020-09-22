@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "colors": "^1.4.0",
+    "midi": "^1.0.0",
     "moment": "^2.27.0",
     "ramda": "^0.27.1",
     "serialport": "^9.0.1",

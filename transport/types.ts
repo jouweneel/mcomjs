@@ -1,31 +1,23 @@
-import { UdpConfig, UdpContext } from './udp/types'
-import { XudpConfig, XudpContext } from './xudp/types'
-import { Rs232Context, Rs232Config } from './rs232/types'
-import { Transport, TransportFn } from './types_private'
-import { HttpConfig, HttpContext } from './http/types'
-import { TcpConfig, TcpContext } from './tcp/types'
+export type TransportEvent = 'connect' | 'data' | 'disconnect'
+type TransportOn<Ctx> = <E extends TransportEvent> (
+  event: E,
+  callback: E extends 'data'
+    ? (data: Buffer, ctx?: Ctx) => void  // Buffer for req/res
+    : (ctx?: Ctx) => void
+) => void;
 
+export interface Transport <Ctx = Record<string,any>> {
+  emit?: (data: Buffer, ctx?: Ctx) => Promise<number>
+  on?: TransportOn<Ctx>
 
-export interface Transports {
-  Http: TransportFn<HttpConfig, Transport<HttpContext>>
-  Rs232: TransportFn<Rs232Config, Transport<Rs232Context>>
-  Tcp: TransportFn<TcpConfig, Transport<TcpContext>>
-  Udp: TransportFn<UdpConfig, Transport<UdpContext>>
-  Xudp: TransportFn<XudpConfig, Transport<XudpContext>>
+  request?: (data: Buffer, ctx?: Ctx) => Promise<Buffer>
+  respond?: (responder: (data: Buffer, ctx?: Ctx) => Promise<Buffer>) => void
+
+  connect?: () => Promise<void>
+  disconnect?: (ctx?: Ctx) => Promise<void>
+  list?: () => Promise<Record<string,any>[]>
 }
 
-export interface TransportConfigs {
-  Http: HttpConfig
-  Rs232: Rs232Config
-  Tcp: TcpConfig
-  Udp: UdpConfig
-  Xudp: XudpConfig
-}
-
-export interface TransportContexts {
-  Http: HttpContext
-  Rs232: Rs232Context
-  Tcp: TcpContext
-  Udp: UdpContext
-  Xudp: XudpContext
-}
+export type TransportFn <Cfg = Record<string,any>, Ctx = Record<string,any>> = (
+  cfg?: Cfg
+) => Promise<Transport<Ctx>>
