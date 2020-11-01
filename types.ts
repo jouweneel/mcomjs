@@ -32,14 +32,14 @@ export type DataType =
   'u64[]' | 'i64[]' | 'timestamp[]' | 'double[]'
 
 export interface McomMessage {
-  cmd?: string | number
+  cmd?: number | string
   data?: any
   type?: DataType
 }
 
 export interface McomProtocol {
-  decode: (buf: Buffer) => McomMessage[]
-  encode: (msg: McomMessage[]) => Buffer
+  decode: (buf: Buffer) => McomMessage
+  encode: (msg: McomMessage) => Buffer
 }
 
 interface State {

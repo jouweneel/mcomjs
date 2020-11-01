@@ -63,29 +63,24 @@ const readBufData = (
 
 export const buf2bs: McomProtocol['decode'] = buf => {
   if (!buf.length) {
-    return [];
+    return null;
   }
-  
-  const msgs: McomMessage[] = [];
+
   let ptr = 0;
 
-  while (ptr < buf.length) {
-    const typeCode = buf[ptr + 1];
-    const unitSize = (typeCode & 0xf0) >> 4;
+  const typeCode = buf[ptr + 1];
+  const unitSize = (typeCode & 0xf0) >> 4;
 
-    const isArray = (typeCode & 0x08) == 0x08;
-    const len = isArray ? buf.readUInt16LE(ptr + 2) : 1;
-    const dataBytes = len * unitSize;
+  const isArray = (typeCode & 0x08) == 0x08;
+  const len = isArray ? buf.readUInt16LE(ptr + 2) : 1;
+  const dataBytes = len * unitSize;
 
-    const cmd = buf[ptr];
-    const type = t2bs(typeCode);
+  const cmd = buf[ptr];
+  const type = t2bs(typeCode);
 
-    ptr += isArray ? 4 : 2;
-    const data = readBufData(buf, type, ptr, len);
-    ptr += dataBytes;
+  ptr += isArray ? 4 : 2;
+  const data = readBufData(buf, type, ptr, len);
+  ptr += dataBytes;
 
-    msgs.push({ cmd, data, type });
-  }
-
-  return msgs;
+  return { cmd, data, type } as McomMessage;
 }

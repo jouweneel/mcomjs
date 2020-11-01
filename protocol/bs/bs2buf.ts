@@ -72,26 +72,19 @@ const data2buf = (
   }
 }
 
-/**
- * | CMD | TYPE | LEN? | DATA? |
- */
-export const bs2buf: McomProtocol['encode'] = msgs => {
-  const bufs = msgs.map(({ cmd, data, type }) => {
-    const bsType = bs2t(type);
-    const isArray = (bsType & 0x08) == 0x08;
-    const dataLength = isArray ? type === 'json' ? JSON.stringify(data).length : (data as any[]).length : 1;
-    const headerSize = isArray ? 4 : 2;
+export const bs2buf: McomProtocol['encode'] = ({ cmd, data, type }) => {
+  const bsType = bs2t(type);
+  const isArray = (bsType & 0x08) == 0x08;
+  const dataLength = isArray ? type === 'json' ? JSON.stringify(data).length : (data as any[]).length : 1;
+  const headerSize = isArray ? 4 : 2;
+
+  const header = Buffer.alloc(headerSize);
+  header.writeUInt8(cmd as number, 0);
+  header.writeUInt8(bsType, 1);
   
-    const header = Buffer.alloc(headerSize);
-    header.writeUInt8(cmd as number, 0);
-    header.writeUInt8(bsType, 1);
-    
-    if (isArray) {
-      header.writeUInt16LE(dataLength, 2);
-    }
+  if (isArray) {
+    header.writeUInt16LE(dataLength, 2);
+  }
 
-    return Buffer.concat([ header, data2buf(data || [], type) ]);
-  });
-
-  return Buffer.concat(bufs);
+  return Buffer.concat([ header, data2buf(data || [], type) ]);
 }

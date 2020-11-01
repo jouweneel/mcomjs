@@ -23,10 +23,9 @@ export const rs232: TransportFn<Rs232Config> = async ({
 
   const connect: Transport['connect'] = () => new Promise((resolve, reject) => {
     serial.on('error', reject);
+    serial.on('data', (data: Buffer) => emit('data', data));
     serial.open(e => e ? reject(e) : resolve());
   });
-
-  serial.on('data', (data: Buffer) => emit('data', data));
 
   await connect();
   logger.debug(`${port} connected`);

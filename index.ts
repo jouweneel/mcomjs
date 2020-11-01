@@ -7,7 +7,6 @@ import { TransportEvent } from './transport/types'
 export * from './util'
 
 const logger = taglogger('MCom');
-const toArray = (a: McomMessage | McomMessage[]): McomMessage[] => Array.isArray(a) ? a : [ a ];
 
 export const MCom = async (
   ptc: { protocol: keyof (typeof protocols), transport: keyof (typeof transports), config: Record<string,any> }
@@ -15,17 +14,17 @@ export const MCom = async (
   const protocol: McomProtocol = protocols[ptc.protocol];
   const transport = await (transports)[ptc.transport](ptc.config as any);
 
-  const emit = async (msg: McomMessage | McomMessage[], ctx?: Record<string,any>) => {
+  const emit = async (msg: McomMessage, ctx?: Record<string,any>) => {
     if (!transport.emit) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'emit'`));
     } else {
-      return await transport.emit(protocol.encode(toArray(msg)), ctx);
+      return await transport.emit(protocol.encode(msg), ctx);
     }
   };
 
   const on = async <E extends TransportEvent> (
     event: E,
-    callback: E extends 'data' ? (msgs: McomMessage[], ctx?: Record<string,any>) => void : (ctx?: Record<string,any>) => void
+    callback: E extends 'data' ? (msg: McomMessage, ctx?: Record<string,any>) => void : (ctx?: Record<string,any>) => void
   ) => {
     if (!transport.on) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'on'`));
@@ -40,15 +39,15 @@ export const MCom = async (
     }
   };
 
-  const request = async (msg: McomMessage | McomMessage[], ctx?: Record<string,any>) => {
+  const request = async (msg: McomMessage, ctx?: Record<string,any>) => {
     if (!transport.request) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'request'`));
     } else {
-      return await transport.request(protocol.encode(toArray(msg)), ctx);
+      return await transport.request(protocol.encode(msg), ctx);
     }
   };
 
-  const respond = async (callback: (msgs: McomMessage[], ctx?: Record<string,any>) => void) => {
+  const respond = async (callback: (msg: McomMessage, ctx?: Record<string,any>) => void) => {
     if (!transport.respond) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'respond'`));
     } else {

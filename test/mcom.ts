@@ -9,16 +9,12 @@ const BsUdp = async () => {
     protocol: 'Bs', transport: 'Udp', config: { mode: 'server', port: 3333 }
   });
 
-  srv.on('data', (msgs, ctx) => {
-    console.log(`Received`, ...msgs, 'from', ctx);
-    srv.emit([{ cmd: 3, data: 'response', type: 'string' }], ctx);
+  srv.on('data', (msg, ctx) => {
+    console.log(`Received`, msg, 'from', ctx);
+    srv.emit({ cmd: 3, data: 'response', type: 'string' }, ctx);
   });
 
-  cli.on('data', msgs => console.log('got back', ...msgs));
-  cli.emit(
-    [{ cmd: 0, data: 'm0', type: 'string' }, { cmd: 1, data: 'm1', type: 'string' }],
-    { port: 2222 }
-  );
+  cli.on('data', msg => console.log('got back', msg));
 }
 
 const BufTcp = async () => {
