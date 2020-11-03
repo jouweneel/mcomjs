@@ -38,4 +38,4 @@ const encode: McomProtocol['encode'] = ({ cmd, data }) => {
 	return buf;
 }
 
-export const EISCP: McomProtocol = { decode, encode };
+export const eiscp: McomProtocol = { decode, encode };

@@ -1,6 +1,6 @@
 import { McomProtocol } from '../types'
 
-export const Buf: McomProtocol = {
-  decode: buf => ({ data: buf ? buf : null }),
+export const buf: McomProtocol = {
+  decode: b => ({ data: b ? b : null }),
   encode: ({ data }) => data || Buffer.from([])
 }

@@ -12,7 +12,7 @@ type HttpContext = RequestOptions
 
 const logger = taglogger('transport-http');
 
-export const Http: TransportFn<HttpConfig, HttpContext> = ({
+export const http: TransportFn<HttpConfig, HttpContext> = ({
   host, port
 }) => new Promise(resolve => {
   let responder: (data: Buffer, ctx: HttpContext) => Promise<Buffer> = null;

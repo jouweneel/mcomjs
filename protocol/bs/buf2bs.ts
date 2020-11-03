@@ -68,15 +68,20 @@ export const buf2bs: McomProtocol['decode'] = buf => {
 
   let ptr = 0;
 
+  const cmd = buf[ptr];
   const typeCode = buf[ptr + 1];
-  const unitSize = (typeCode & 0xf0) >> 4;
+  const type = t2bs(typeCode);
+
+  if (!type) {
+    throw new Error(`Unknown type "${type}"`);
+  } else if (type === 'void') {
+    return { cmd, type };
+  }
 
   const isArray = (typeCode & 0x08) == 0x08;
+  const unitSize = (typeCode & 0xf0) >> 4;
   const len = isArray ? buf.readUInt16LE(ptr + 2) : 1;
   const dataBytes = len * unitSize;
-
-  const cmd = buf[ptr];
-  const type = t2bs(typeCode);
 
   ptr += isArray ? 4 : 2;
   const data = readBufData(buf, type, ptr, len);

@@ -19,7 +19,7 @@ interface UdpContext {
 
 const logger = taglogger('transport-udp');
 
-export const Udp: TransportFn<UdpConfig, UdpContext> = async ({
+export const udp: TransportFn<UdpConfig, UdpContext> = async ({
   ip, mode, port
 }) => {
   let connected = false;
@@ -66,6 +66,7 @@ export const Udp: TransportFn<UdpConfig, UdpContext> = async ({
   logger.debug(`${mode} ${ip ? ip : 'localhost'}:${port} connected`);
 
   return {
+    context: true,
     connect,
     disconnect,
     emit: udpEmit,

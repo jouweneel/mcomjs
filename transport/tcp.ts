@@ -44,6 +44,7 @@ const TcpClient: TransportFn<TcpConfig, TcpContext> = async ({
   await connect();
 
   return {
+    context: true,
     connect,
     disconnect: socket.destroy.bind(socket),
     emit: tcpEmit,
@@ -110,7 +111,7 @@ const TcpServer: TransportFn<TcpConfig, TcpContext> = async ({
   };
 }
 
-export const Tcp: TransportFn<TcpConfig, TcpContext> = async ({ mode, ...cfg }) => {
+export const tcp: TransportFn<TcpConfig, TcpContext> = async ({ mode, ...cfg }) => {
   try {
     return mode === 'server' ? TcpServer(cfg) : TcpClient(cfg);
   } catch(e) {

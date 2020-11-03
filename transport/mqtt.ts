@@ -12,7 +12,7 @@ interface MqttContext {
   topic: string
 }
 
-export const Mqtt: TransportFn<MqttConfig, MqttContext> = async ({
+export const mqtt: TransportFn<MqttConfig, MqttContext> = async ({
   url, topics, ...opts
 }) => {
   let client: MqttClient = null;
@@ -41,6 +41,7 @@ export const Mqtt: TransportFn<MqttConfig, MqttContext> = async ({
   await connect();
 
   return {
+    context: true,
     connect,
     emit: mqttEmit,
     on

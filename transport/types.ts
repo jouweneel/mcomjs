@@ -7,6 +7,8 @@ type TransportOn<Ctx> = <E extends TransportEvent> (
 ) => void;
 
 export interface Transport <Ctx = Record<string,any>> {
+  context?: boolean
+
   emit?: (data: Buffer, ctx?: Ctx) => Promise<number>
   on?: TransportOn<Ctx>
 
