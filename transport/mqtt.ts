@@ -1,6 +1,7 @@
 import { connect as mqttConnect, IClientOptions, MqttClient } from 'mqtt'
-import { emitter } from '../util';
+
 import { Transport, TransportFn } from './types'
+import { emitter } from '../util'
 
 type MqttConfig = IClientOptions & {
   url: string
@@ -21,7 +22,7 @@ export const mqtt: TransportFn<MqttConfig, MqttContext> = async ({
   const mqttEmit: Transport['emit'] = (
     data, { qos, topic }
   ) => new Promise((resolve, reject) => {
-    client.publish(topic, data, { qos: qos || 1 }, e => e ? reject(e) : resolve());
+    client.publish(topic, data, { qos: qos || 0 }, (e, p) => e ? reject(e) : resolve(p.length));
   });
 
   const connect: Transport['connect'] = () => new Promise((resolve, reject) => {
