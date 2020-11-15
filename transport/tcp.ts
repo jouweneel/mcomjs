@@ -4,7 +4,7 @@ import { Transport, TransportFn } from './types'
 import { taglogger } from '../logger'
 import { emitter, find } from '../util'
 
-export interface TcpConfig {
+interface TcpConfig {
   ip?: string
   port: number
   mode?: 'server' | 'client'

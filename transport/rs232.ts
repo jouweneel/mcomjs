@@ -4,7 +4,7 @@ import { Transport, TransportFn } from './types'
 import { taglogger } from '../logger'
 import { emitter } from '../util';
 
-export type Rs232Config = OpenOptions & {
+type Rs232Config = OpenOptions & {
   port: string
 }
 

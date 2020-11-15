@@ -22,7 +22,7 @@ export const mqtt: TransportFn<MqttConfig, MqttContext> = async ({
   const mqttEmit: Transport['emit'] = (
     data, { qos, topic }
   ) => new Promise((resolve, reject) => {
-    client.publish(topic, data, { qos: qos || 0, retain: false }, e => e ? reject(e) : resolve());
+    client.publish(topic, data, { qos: qos || 0, retain: false }, (e, p) => e ? reject(e) : resolve(p.length));
   });
 
   const connect: Transport['connect'] = () => new Promise((resolve, reject) => {
