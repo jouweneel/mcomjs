@@ -3,8 +3,11 @@ import * as transports from './transport'
 
 import { taglogger } from './logger'
 import { McomMessage, McomProtocol } from './types'
-import { TransportEvent } from './transport/types'
+import { Transport, TransportEvent } from './transport/types'
 export * from './util'
+
+export type ProtocolKey = keyof (typeof protocols);
+export type TransportKey = keyof (typeof transports);
 
 const logger = taglogger('MCom');
 
@@ -12,7 +15,7 @@ export const MCom = async (
   ptc: { protocol: keyof (typeof protocols), transport: keyof (typeof transports), config: Record<string,any> }
 ) => {
   const protocol: McomProtocol = protocols[ptc.protocol];
-  const transport = await (transports)[ptc.transport](ptc.config as any);
+  const transport: Transport<unknown> = await (transports)[ptc.transport](ptc.config as any);
 
   const emit = async (msg: McomMessage, ctx?: Record<string,any>) => {
     if (!transport.emit) {

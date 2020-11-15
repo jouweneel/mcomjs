@@ -15,6 +15,7 @@ const readBufData = (
   buf: Buffer, type: DataType, ptr: number, len: number = 1
 ) => {
   switch(type) {
+    case 'void': return null;
     case 'u8': case 'bool': case 'char': return buf.readUInt8(ptr);
     case 'u16': return buf.readUInt16LE(ptr);
     case 'u32': return buf.readUInt32LE(ptr);

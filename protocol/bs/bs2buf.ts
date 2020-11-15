@@ -16,7 +16,7 @@ const bufWriteArray = (data: number[], method: string, bytes: number) => {
 
 const data2buf = (
   data: any | any[],
-  type: DataType
+  type: DataType = 'void'
 ): Buffer => {
   /** No data */
   if (!data) {
@@ -24,6 +24,7 @@ const data2buf = (
   }
 
   switch(type) {
+    case 'void': return Buffer.from([]);
     case 'u8': case 'bool': case 'char': return Buffer.from([ data ]);
     case 'string': case 'u8[]': case 'bool[]': case 'rgb': case 'rgbw': case 'hsv':
       return Buffer.from(data);
