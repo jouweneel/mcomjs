@@ -17,7 +17,7 @@ const decode: McomProtocol['decode'] = buf => {
       console.log('eiscp error', e);
     }
   }
-  return { cmd, data: Buffer.from(str) };
+  return { cmd, data: str };
 }
 
 const encode: McomProtocol['encode'] = ({ cmd, data }) => {
