@@ -1,5 +1,4 @@
 export * from './http'
 export * from './mqtt'
-export * from './rs232'
 export * from './tcp'
 export * from './udp'
