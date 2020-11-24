@@ -2,8 +2,8 @@ import * as protocols from './protocol'
 import * as transports from './transport'
 
 import { taglogger } from './logger'
-import { McomMessage, McomProtocol } from './types'
-import { Transport, TransportEvent } from './transport/types'
+import { Mcom, McomProtocol } from './types'
+import { Transport } from './transport/types'
 export * from './util'
 
 export type ProtocolKey = keyof (typeof protocols);
@@ -13,11 +13,11 @@ const logger = taglogger('MCom');
 
 export const MCom = async (
   ptc: { protocol: keyof (typeof protocols), transport: keyof (typeof transports), config: Record<string,any> }
-) => {
+): Promise<Mcom> => {
   const protocol: McomProtocol = protocols[ptc.protocol];
   const transport: Transport<unknown> = await (transports)[ptc.transport](ptc.config as any);
 
-  const emit = async (msg: McomMessage, ctx?: Record<string,any>) => {
+  const emit: Mcom['emit'] = async (msg, ctx) => {
     if (!transport.emit) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'emit'`));
     } else {
@@ -25,10 +25,7 @@ export const MCom = async (
     }
   };
 
-  const on = async <E extends TransportEvent> (
-    event: E,
-    callback: E extends 'data' ? (msg: McomMessage, ctx?: Record<string,any>) => void : (ctx?: Record<string,any>) => void
-  ) => {
+  const on: Mcom['on'] = async (event, callback) => {
     if (!transport.on) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'on'`));
     } 
@@ -42,7 +39,7 @@ export const MCom = async (
     }
   };
 
-  const request = async (msg: McomMessage, ctx?: Record<string,any>) => {
+  const request: Mcom['request'] = async (msg, ctx) => {
     if (!transport.request) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'request'`));
     } else {
@@ -50,7 +47,7 @@ export const MCom = async (
     }
   };
 
-  const respond = async (callback: (msg: McomMessage, ctx?: Record<string,any>) => void) => {
+  const respond: Mcom['respond'] = async (callback) => {
     if (!transport.respond) {
       logger.error(new Error(`Transport "${ptc.transport}" does not implement 'respond'`));
     } else {

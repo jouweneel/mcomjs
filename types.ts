@@ -1,3 +1,5 @@
+import { TransportEvent } from './transport/types'
+
 export type DataType =
 /** 0-byte unit types */
   'void' | 'custom' |
@@ -42,13 +44,32 @@ export interface McomProtocol {
   encode: (msg: McomMessage) => Buffer
 }
 
+type McomOn = <E extends TransportEvent> (event: E, callback: E extends 'data'
+  ? (msg: McomMessage, ctx?: Record<string,any>) => void
+  : (ctx?: Record<string,any>) => void
+) => Promise<void>
+
+export interface Mcom {
+  emit?: (msg: McomMessage, ctx?: Record<string,any>) => Promise<number>
+  on?: McomOn
+  request?: (msg: McomMessage, ctx?: Record<string,any>) => Promise<Buffer>
+  respond?: (callback: (msg: McomMessage, ctx?: Record<string,any>) => void) => Promise<void>
+
+  connect?: (ctx?: Record<string,any>) => Promise<void>
+  disconnect?: (ctx?: Record<string,any>) => Promise<void>
+
+  list?: () => Promise<Record<string,any>[]>
+}
+
 type CallbackFn = (...args: any) => void
+export type AnyCallbackFn = (event: string, ...args: any) => void
 export interface Callbacks {[event: string]: CallbackFn[] }
 
 export interface Emitter {
   emit: (event: string, ...args: any) => void
   on: (event: string, cb: CallbackFn) => void
+  onAny: (cb: AnyCallbackFn) => void
   off: (event: string, cb: CallbackFn) => void
-  offAll: () => void
-  stop: (event: string) => void
+  offAny: (cb: AnyCallbackFn) => void
+  reset: (event?: string) => void
 }
