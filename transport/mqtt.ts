@@ -17,7 +17,7 @@ export const mqtt: TransportFn<MqttConfig, MqttContext> = async ({
   url, topics, ...opts
 }) => {
   let client: MqttClient = null;
-  const { emit, on } = emitter();
+  const { emit, on, off } = emitter();
 
   const mqttEmit: Transport['emit'] = (
     data, { qos, topic }
@@ -25,26 +25,35 @@ export const mqtt: TransportFn<MqttConfig, MqttContext> = async ({
     client.publish(topic, data, { qos: qos || 0, retain: false }, e => e ? reject(e) : resolve(data.length));
   });
 
+  const onMessage = (topic: string, data: Buffer) => {
+    emit('data', data, { topic });
+  };
+
   const connect: Transport['connect'] = () => new Promise((resolve, reject) => {
     client = mqttConnect(url, opts);
     client.on('error', reject);
-    client.on('message', (topic, data) => {
-      emit('data', data, { topic });
-    });
-    client.on('connect', () => {
-      for (const topic of topics) {
-        client.subscribe(topic);
-      }
+    client.on('message', onMessage);
+
+    const onConnect = () => {
+      client.subscribe(topics);
+
+      client.off('connect', onConnect);
+      client.off('error', reject);
       resolve();
-    });
+    }
+
+    client.on('connect', onConnect);
   });
 
-  await connect();
+  const disconnect: Transport['disconnect'] = () => new Promise(resolve => {
+    client.unsubscribe(topics);
+    client.off('message', onMessage);
+    client.end(true, null, resolve);
+  });
 
   return {
     context: true,
-    connect,
-    emit: mqttEmit,
-    on
+    connect, disconnect,
+    emit: mqttEmit, on, off
   }
 }

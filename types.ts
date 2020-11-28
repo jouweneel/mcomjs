@@ -73,3 +73,22 @@ export interface Emitter {
   offAny: (cb: AnyCallbackFn) => void
   reset: (event?: string) => void
 }
+
+export type McomCallback <Event extends TransportEvent> =
+  Event extends 'data' ? (msg: McomMessage, ctx?: Record<string,any>) => void :
+  (ctx?: Record<string,any>) => void
+
+type McomOnOff = <Event extends TransportEvent> (
+  event: Event, callback: McomCallback<Event>
+) => void
+
+export interface MCom {
+  emit?: (msg: McomMessage, ctx?: Record<string,any>) => Promise<number>
+  on?: McomOnOff
+  off?: McomOnOff
+  request?: (msg: McomMessage, ctx?: Record<string,any>) => Promise<Buffer>
+  respond?: (callback: (msg: McomMessage, ctx?: Record<string,any>) => Promise<void>) => void
+  connect?: () => Promise<void>
+  disconnect?: () => Promise<void>
+  list?: () => Promise<Record<string,any>[]>
+}

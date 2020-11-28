@@ -56,7 +56,7 @@ const TcpServer: TransportFn<TcpConfig, TcpContext> = async ({
   ip, port
 }) => {
   const clients: (TcpContext & {socket: Socket})[] = [];
-  const { emit, on } = emitter();
+  const { emit, on, off } = emitter();
 
   const server = createServer(socket => {
     const existing = find(s => s.ip === socket.remoteAddress, clients);
@@ -80,7 +80,10 @@ const TcpServer: TransportFn<TcpConfig, TcpContext> = async ({
 
   const connect: Transport['connect'] = () => new Promise((resolve, reject) => {
     server.on('error', reject);
-    server.listen(port, ip, resolve);
+    server.listen(port, ip, () => {
+      logger.debug(`${ip || 'localhost'}:${port} connected`);
+      resolve();
+    });
   });
 
   const disconnect: Transport['disconnect'] = ctx => new Promise((resolve, reject) => {
@@ -100,14 +103,11 @@ const TcpServer: TransportFn<TcpConfig, TcpContext> = async ({
     return write(socket, data);
   }
 
-  await connect();
-  logger.debug(`${ip || 'localhost'}:${port} connected`);
-
   return {
     connect,
     disconnect,
     emit: tcpEmit,
-    on
+    on, off
   };
 }
 

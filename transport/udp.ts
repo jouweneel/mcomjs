@@ -26,7 +26,7 @@ export const udp: TransportFn<UdpConfig, UdpContext> = async ({
   const socket = createSocket('udp4');
   const bcastIp = getIp(true);
 
-  const { emit, on } = emitter();
+  const { emit, on, off } = emitter();
 
   const socketConnect = () => new Promise((resolve, reject) => {
     socket.on('error', reject);
@@ -62,14 +62,11 @@ export const udp: TransportFn<UdpConfig, UdpContext> = async ({
     emit('data', data, { ip: info.address, port: info.port });
   });
 
-  await connect();
-  logger.debug(`${mode} ${ip ? ip : 'localhost'}:${port} connected`);
-
   return {
     context: true,
     connect,
     disconnect,
     emit: udpEmit,
-    on
+    on, off
   }
 };

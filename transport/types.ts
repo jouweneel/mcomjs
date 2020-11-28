@@ -1,16 +1,20 @@
 export type TransportEvent = 'connect' | 'data' | 'disconnect'
-type TransportOn<Ctx> = <E extends TransportEvent> (
+
+type TransportCallback<E extends TransportEvent, Ctx = Record<string,any>> =
+  E extends 'data' ? (data: Buffer, ctx?: Ctx) => void  // Buffer for req/res
+  : (ctx?: Ctx) => void
+
+type TransportOnOff<Ctx> = <E extends TransportEvent> (
   event: E,
-  callback: E extends 'data'
-    ? (data: Buffer, ctx?: Ctx) => void  // Buffer for req/res
-    : (ctx?: Ctx) => void
+  callback: TransportCallback<E, Ctx>
 ) => void;
 
 export interface Transport <Ctx = Record<string,any>> {
   context?: boolean
 
   emit?: (data: Buffer, ctx?: Ctx) => Promise<number>
-  on?: TransportOn<Ctx>
+  on?: TransportOnOff<Ctx>
+  off?: TransportOnOff<Ctx>
 
   request?: (data: Buffer, ctx?: Ctx) => Promise<Buffer>
   respond?: (responder: (data: Buffer, ctx?: Ctx) => Promise<Buffer>) => void
