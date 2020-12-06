@@ -36,25 +36,23 @@ BsDataTypes[0x39] = 'hsv[]'
 BsDataTypes[0x40] = 'u32'
 BsDataTypes[0x41] = 'i32'
 BsDataTypes[0x42] = 'float'
-BsDataTypes[0x43] = 'rgbw'
+BsDataTypes[0x43] = 'timestamp'
 
 /** 4-byte array types */
 BsDataTypes[0x48] = 'u32[]'
 BsDataTypes[0x49] = 'i32[]'
 BsDataTypes[0x4a] = 'float[]'
-BsDataTypes[0x4b] = 'rgbw[]'
+BsDataTypes[0x4b] = 'timestamp[]'
 
 /** 8-byte types */
 BsDataTypes[0x80] = 'u64'
 BsDataTypes[0x81] = 'i64'
-BsDataTypes[0x82] = 'timestamp'
-BsDataTypes[0x83] = 'double'
+BsDataTypes[0x82] = 'double'
 
 /** 8-byte array types */
 BsDataTypes[0x88] = 'u64[]'
 BsDataTypes[0x89] = 'i64[]'
-BsDataTypes[0x8a] = 'timestamp[]'
-BsDataTypes[0x8b] = 'double[]'
+BsDataTypes[0x8a] = 'double[]'
 
 const bs2tMap = BsDataTypes.reduce((acc, v, k) => ({ ...acc, [v]: k }), {});
 
