@@ -1,12 +1,12 @@
 import colors from 'colors'
 import { openSync, writeSync } from 'fs'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import { join } from 'path'
 
 const file = process.env.LOGFILE && openSync(join(process.cwd(), process.env.LOGFILE), 'w');
 const dbg = process.env.NODE_ENV === 'development';
 
-const prefix = (tag: string) => `${moment().format('YYYY-MM-DD HH:mm:ss:SSS')} [${tag}]`;
+const prefix = (tag: string) => `${dayjs().format('YYYY-MM-DD HH:mm:ss:SSS')} [${tag}]`;
 
 const filelog = (prefix: string, args: any[]) => {
   file && writeSync(file, `${prefix} `);
